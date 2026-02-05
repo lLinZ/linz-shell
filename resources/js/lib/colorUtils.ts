@@ -268,23 +268,31 @@ export interface ColorPalette {
  */
 export function generateColorPalette(baseColor: string, isDark: boolean = false): ColorPalette {
     const rgb = hexToRgb(baseColor);
-    if (!rgb) {
-        // Fallback to blue palette (dark mode default)
+
+    // Default blue if hex is invalid
+    const validRgb = rgb || { r: 59, g: 130, b: 246 };
+
+    if (isDark) {
+        // DARK MODE - High quality "Anthracite" foundation
         return {
-            primary: '#3B82F6',
-            primaryDark: '#2563EB',
-            primaryLight: '#DBEAFE',
-            primaryLighter: '#EFF6FF',
-            accent: '#60A5FA',
-            accentHover: '#3B82F6',
-            surface: 'rgba(59, 130, 246, 0.1)',
-            surfaceHover: 'rgba(59, 130, 246, 0.15)',
-            textOnPrimary: '#FFFFFF',
-            border: '#93C5FD',
-            bgPrimary: '#0d0d0d',
-            bgSecondary: '#1a1a1a',
-            bgTertiary: '#2a2a2a',
-            // Semantic colors
+            primary: baseColor,
+            primaryDark: adjustColor(baseColor, { l: -10 }),
+            primaryLight: `rgba(${validRgb.r}, ${validRgb.g}, ${validRgb.b}, 0.25)`,
+            primaryLighter: `rgba(${validRgb.r}, ${validRgb.g}, ${validRgb.b}, 0.15)`,
+            accent: baseColor,
+            accentHover: adjustColor(baseColor, { l: 5 }),
+            surface: `rgba(${validRgb.r}, ${validRgb.g}, ${validRgb.b}, 0.1)`,
+            surfaceHover: `rgba(${validRgb.r}, ${validRgb.g}, ${validRgb.b}, 0.18)`,
+            textOnPrimary: calculateContrastText(baseColor),
+
+            // BORDERS: Neutral gray, NOT yellow
+            border: '#2A2A2C',
+
+            // BACKGROUNDS: Hand-picked premium dark grays (not black)
+            bgPrimary: '#0F0F10',      // Deep charcoal
+            bgSecondary: '#161618',    // Slightly lighter for nav
+            bgTertiary: '#1E1E21',     // Card surface
+
             success: '#10B981',
             successLight: 'rgba(16, 185, 129, 0.15)',
             warning: '#F59E0B',
@@ -293,146 +301,56 @@ export function generateColorPalette(baseColor: string, isDark: boolean = false)
             dangerLight: 'rgba(239, 68, 68, 0.15)',
             info: '#3B82F6',
             infoLight: 'rgba(59, 130, 246, 0.15)',
-            // Status colors
             online: '#10B981',
             offline: '#6B7280',
-            // Interactive states
-            hoverBg: 'rgba(59, 130, 246, 0.12)',
-            activeBg: 'rgba(59, 130, 246, 0.2)',
-            focusRing: '#60A5FA',
-            // Text colors
+
+            hoverBg: `rgba(${validRgb.r}, ${validRgb.g}, ${validRgb.b}, 0.12)`,
+            activeBg: `rgba(${validRgb.r}, ${validRgb.g}, ${validRgb.b}, 0.22)`,
+            focusRing: `rgba(${validRgb.r}, ${validRgb.g}, ${validRgb.b}, 0.5)`,
+
             textPrimary: '#F9FAFB',
-            textSecondary: '#D1D5DB',
-            textMuted: '#9CA3AF',
-        };
-    }
-
-    const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
-
-    if (isDark) {
-        // Dark mode palette - Material Design inspired
-        return {
-            // Primary: Main brand color, slightly desaturated for dark mode
-            primary: adjustColor(baseColor, { s: -10, l: 0 }),
-
-            // Primary Dark: Darker version for hover states
-            primaryDark: adjustColor(baseColor, { s: -5, l: -15 }),
-
-            // Primary Light: Lighter version for subtle backgrounds
-            primaryLight: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.25)`,
-
-            // Primary Lighter: Very subtle background
-            primaryLighter: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.15)`,
-
-            // Accent: Brighter version for highlights
-            accent: adjustColor(baseColor, { s: 10, l: 20 }),
-
-            // Accent Hover: Slightly brighter on hover
-            accentHover: adjustColor(baseColor, { s: 15, l: 25 }),
-
-            // Surface: Very subtle tinted background
-            surface: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1)`,
-
-            // Surface Hover: Slightly more visible on hover
-            surfaceHover: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.18)`,
-
-            // Text on Primary: Calculated contrast color
-            textOnPrimary: calculateContrastText(baseColor),
-
-            // Border: Muted version for borders
-            border: adjustColor(baseColor, { s: -20, l: 10 }),
-
-            // Dark Backgrounds - Material Design style with GOOD CONTRAST
-            // Much darker base, but cards stand out significantly
-            bgPrimary: adjustColor(baseColor, { s: -40, l: -88 }),      // Darkest - main background (almost black)
-            bgSecondary: adjustColor(baseColor, { s: -35, l: -82 }),    // Medium dark - navbar
-            bgTertiary: adjustColor(baseColor, { s: -30, l: -72 }),     // Lighter - cards (visible!)
-
-            // Semantic colors - Fixed for universal recognition (dark mode)
-            success: '#10B981',         // Green-500
-            successLight: 'rgba(16, 185, 129, 0.15)',
-            warning: '#F59E0B',         // Amber-500
-            warningLight: 'rgba(245, 158, 11, 0.15)',
-            danger: '#EF4444',          // Red-500
-            dangerLight: 'rgba(239, 68, 68, 0.15)',
-            info: '#3B82F6',            // Blue-500
-            infoLight: 'rgba(59, 130, 246, 0.15)',
-
-            // Status colors - Fixed (dark mode)
-            online: '#10B981',          // Green-500
-            offline: '#6B7280',         // Gray-500
-
-            // Interactive states based on user color
-            hoverBg: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.12)`,
-            activeBg: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.2)`,
-            focusRing: adjustColor(baseColor, { s: 10, l: 15 }),
-
-            // Text colors (dark mode)
-            textPrimary: '#F9FAFB',     // Gray-50
-            textSecondary: '#D1D5DB',   // Gray-300
-            textMuted: '#9CA3AF',       // Gray-400
+            textSecondary: '#9CA3AF',
+            textMuted: '#6B7280',
         };
     } else {
-        // Light mode palette
+        // LIGHT MODE - Clean, premium "Soft White" foundation
         return {
-            // Primary: Main brand color, more saturated
-            primary: adjustColor(baseColor, { s: 10, l: 0 }),
-
-            // Primary Dark: Darker version for hover states
-            primaryDark: adjustColor(baseColor, { s: 5, l: -10 }),
-
-            // Primary Light: Very light background
+            primary: baseColor,
+            primaryDark: adjustColor(baseColor, { l: -10 }),
             primaryLight: adjustColor(baseColor, { s: -30, l: 40 }),
-
-            // Primary Lighter: Super light background
             primaryLighter: adjustColor(baseColor, { s: -40, l: 45 }),
-
-            // Accent: Vibrant version for highlights
-            accent: adjustColor(baseColor, { s: 15, l: -5 }),
-
-            // Accent Hover: Darker on hover
-            accentHover: adjustColor(baseColor, { s: 20, l: -10 }),
-
-            // Surface: Very subtle tinted background
-            surface: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.05)`,
-
-            // Surface Hover: Slightly more visible on hover
-            surfaceHover: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1)`,
-
-            // Text on Primary: Calculated contrast color
+            accent: baseColor,
+            accentHover: adjustColor(baseColor, { l: -5 }),
+            surface: `rgba(${validRgb.r}, ${validRgb.g}, ${validRgb.b}, 0.05)`,
+            surfaceHover: `rgba(${validRgb.r}, ${validRgb.g}, ${validRgb.b}, 0.1)`,
             textOnPrimary: calculateContrastText(baseColor),
 
-            // Border: Soft border color
-            border: adjustColor(baseColor, { s: -10, l: 25 }),
+            // BORDERS: Clean neutral gray
+            border: '#E5E7EB',
 
-            // Light Backgrounds
-            bgPrimary: '#F9FAFB',        // Light gray
-            bgSecondary: '#FFFFFF',      // White
-            bgTertiary: '#F3F4F6',       // Slightly darker
+            // BACKGROUNDS: Crisp and clean
+            bgPrimary: '#F8F9FA',      // Very light gray
+            bgSecondary: '#FFFFFF',    // Pure white
+            bgTertiary: '#F1F3F5',     // Light surface
 
-            // Semantic colors - Fixed for universal recognition (light mode)
-            success: '#059669',         // Green-600
+            success: '#059669',
             successLight: 'rgba(5, 150, 105, 0.1)',
-            warning: '#D97706',         // Amber-600
+            warning: '#D97706',
             warningLight: 'rgba(217, 119, 6, 0.1)',
-            danger: '#DC2626',          // Red-600
+            danger: '#DC2626',
             dangerLight: 'rgba(220, 38, 38, 0.1)',
-            info: '#2563EB',            // Blue-600
+            info: '#2563EB',
             infoLight: 'rgba(37, 99, 235, 0.1)',
+            online: '#059669',
+            offline: '#6B7280',
 
-            // Status colors - Fixed (light mode)
-            online: '#059669',          // Green-600
-            offline: '#6B7280',         // Gray-500
+            hoverBg: `rgba(${validRgb.r}, ${validRgb.g}, ${validRgb.b}, 0.08)`,
+            activeBg: `rgba(${validRgb.r}, ${validRgb.g}, ${validRgb.b}, 0.15)`,
+            focusRing: `rgba(${validRgb.r}, ${validRgb.g}, ${validRgb.b}, 0.4)`,
 
-            // Interactive states based on user color
-            hoverBg: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.08)`,
-            activeBg: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.15)`,
-            focusRing: adjustColor(baseColor, { s: 15, l: -5 }),
-
-            // Text colors (light mode)
-            textPrimary: '#111827',     // Gray-900
-            textSecondary: '#4B5563',   // Gray-600
-            textMuted: '#9CA3AF',       // Gray-400
+            textPrimary: '#111827',
+            textSecondary: '#4B5563',
+            textMuted: '#9CA3AF',
         };
     }
 }

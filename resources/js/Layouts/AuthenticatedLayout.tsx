@@ -15,32 +15,19 @@ export default function Authenticated({
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
-    // Apply color palette based on user's avatar color
+    // Apply dark mode class and color palette reactively
     useEffect(() => {
-        const isDark = document.documentElement.classList.contains('dark');
-        const palette = generateColorPalette(user.avatar_color || '#3B82F6', isDark);
+        // 1. Sync the 'dark' class on the document
+        if (user.dark_mode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        // 2. Generate and apply the color palette
+        const palette = generateColorPalette(user.avatar_color || '#3B82F6', user.dark_mode);
         applyPaletteToCSSVariables(palette);
-    }, [user.avatar_color]);
-
-    // Re-apply palette when dark mode changes
-    useEffect(() => {
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.attributeName === 'class') {
-                    const isDark = document.documentElement.classList.contains('dark');
-                    const palette = generateColorPalette(user.avatar_color || '#3B82F6', isDark);
-                    applyPaletteToCSSVariables(palette);
-                }
-            });
-        });
-
-        observer.observe(document.documentElement, {
-            attributes: true,
-            attributeFilter: ['class'],
-        });
-
-        return () => observer.disconnect();
-    }, [user.avatar_color]);
+    }, [user.avatar_color, user.dark_mode]);
 
     return (
         <div style={{ backgroundColor: 'var(--color-bg-primary)' }} className="min-h-screen">

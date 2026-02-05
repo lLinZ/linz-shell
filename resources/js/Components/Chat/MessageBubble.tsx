@@ -31,7 +31,7 @@ export default function MessageBubble({ message, isMe }: MessageBubbleProps) {
                         ? "text-white rounded-br-none"
                         : "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-bl-none"
                 )}
-                style={isMe ? { backgroundColor: message.user?.avatar_color || '#2563eb' } : {}}
+                style={isMe ? { backgroundColor: 'var(--color-primary)' } : {}}
             >
                 {!isMe && (
                     <span className="text-xs text-blue-500 font-bold mb-1 block">

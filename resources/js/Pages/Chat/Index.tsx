@@ -159,7 +159,6 @@ export default function ChatDashboard({ auth, conversations: initialConversation
                     {/* Sidebar */}
                     <div style={{
                         backgroundColor: 'var(--color-bg-primary)',
-                        borderRightColor: 'var(--color-border)'
                     }} className="w-1/3 border-r flex flex-col">
                         <div style={{ borderBottomColor: 'var(--color-border)' }} className="p-4 border-b">
                             <input
@@ -169,9 +168,10 @@ export default function ChatDashboard({ auth, conversations: initialConversation
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 style={{
                                     backgroundColor: 'var(--color-bg-tertiary)',
-                                    borderColor: 'var(--color-border)'
+                                    borderColor: 'var(--color-border)',
+                                    borderWidth: '1px'
                                 }}
-                                className="w-full rounded-md text-gray-900 dark:text-white text-sm focus:ring-2"
+                                className="w-full rounded-md text-gray-900 dark:text-white text-sm focus:ring-1 focus:ring-[var(--color-primary)] outline-none px-3 py-2"
                             />
                         </div>
                         <div className="flex-1 overflow-y-auto">
@@ -248,18 +248,19 @@ export default function ChatDashboard({ auth, conversations: initialConversation
                                                         <div className="flex flex-col space-y-1 p-2">
                                                             {groups.map(group => {
                                                                 const isActive = activeConversationId === group.conversation_id;
-                                                                const userColor = group.avatar_color || '#3b82f6';
 
                                                                 return (
                                                                     <button
                                                                         key={`group_${group.id}`}
                                                                         onClick={() => handleUserClick(group)}
-                                                                        className={`flex items-center p-3 rounded-lg transition-all duration-200 text-left theme-hover ${isActive ? "ring-1 theme-active" : ""
+                                                                        className={`flex items-center p-3 rounded-lg transition-all duration-200 text-left theme-hover ${isActive ? "theme-active relative overflow-hidden" : ""
                                                                             }`}
                                                                         style={isActive ? {
                                                                             backgroundColor: `var(--color-active-bg)`,
-                                                                            borderColor: `var(--color-focus-ring)`,
-                                                                        } as React.CSSProperties : {}}
+                                                                            borderLeft: `4px solid var(--color-primary)`,
+                                                                            borderTopLeftRadius: '0',
+                                                                            borderBottomLeftRadius: '0'
+                                                                        } : {}}
                                                                     >
                                                                         <Avatar
                                                                             name={group.name}
@@ -292,18 +293,19 @@ export default function ChatDashboard({ auth, conversations: initialConversation
                                                         <div className="flex flex-col space-y-1 p-2">
                                                             {onlineUsers.map(user => {
                                                                 const isActive = activeConversationId === user.conversation_id;
-                                                                const userColor = user.avatar_color || '#3b82f6';
 
                                                                 return (
                                                                     <button
                                                                         key={user.id}
                                                                         onClick={() => handleUserClick(user)}
-                                                                        className={`flex items-center p-3 rounded-lg transition-all duration-200 text-left theme-hover ${isActive ? "ring-1 theme-active" : ""
+                                                                        className={`flex items-center p-3 rounded-lg transition-all duration-200 text-left theme-hover ${isActive ? "theme-active relative overflow-hidden" : ""
                                                                             }`}
                                                                         style={isActive ? {
                                                                             backgroundColor: `var(--color-active-bg)`,
-                                                                            borderColor: `var(--color-focus-ring)`,
-                                                                        } as React.CSSProperties : {}}
+                                                                            borderLeft: `4px solid var(--color-primary)`,
+                                                                            borderTopLeftRadius: '0',
+                                                                            borderBottomLeftRadius: '0'
+                                                                        } : {}}
                                                                     >
                                                                         <Avatar
                                                                             name={user.name}
@@ -338,18 +340,19 @@ export default function ChatDashboard({ auth, conversations: initialConversation
                                                         <div className="flex flex-col space-y-1 p-2">
                                                             {offlineUsers.map(user => {
                                                                 const isActive = activeConversationId === user.conversation_id;
-                                                                const userColor = user.avatar_color || '#3b82f6';
 
                                                                 return (
                                                                     <button
                                                                         key={user.id}
                                                                         onClick={() => handleUserClick(user)}
-                                                                        className={`flex items-center p-3 rounded-lg transition-all duration-200 text-left ${isActive ? "ring-1" : "hover:bg-gray-100 dark:hover:bg-gray-800/50"
+                                                                        className={`flex items-center p-3 rounded-lg transition-all duration-200 text-left ${isActive ? "theme-active relative overflow-hidden" : "hover:bg-gray-100 dark:hover:bg-gray-800/50"
                                                                             }`}
                                                                         style={isActive ? {
                                                                             backgroundColor: `var(--color-active-bg)`,
-                                                                            borderColor: `var(--color-focus-ring)`,
-                                                                        } as React.CSSProperties : {}}
+                                                                            borderLeft: `4px solid var(--color-primary)`,
+                                                                            borderTopLeftRadius: '0',
+                                                                            borderBottomLeftRadius: '0'
+                                                                        } : {}}
                                                                     >
                                                                         <Avatar
                                                                             name={user.name}

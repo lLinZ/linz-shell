@@ -38,13 +38,15 @@ export default function ConversationList({ conversations, activeId, onSelect, on
                         className={cn(
                             "flex items-center p-3 rounded-lg transition-all duration-200 text-left theme-hover",
                             activeId === conv.id
-                                ? "ring-1 theme-active"
+                                ? "theme-active relative overflow-hidden"
                                 : ""
                         )}
                         style={activeId === conv.id ? {
                             backgroundColor: `var(--color-active-bg)`,
-                            borderColor: `var(--color-focus-ring)`,
-                        } as React.CSSProperties : {}}
+                            borderLeft: `4px solid var(--color-primary)`,
+                            borderTopLeftRadius: '0',
+                            borderBottomLeftRadius: '0'
+                        } : {}}
                     >
                         <Avatar
                             name={conv.name}
