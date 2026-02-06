@@ -33,8 +33,7 @@ export default function ChatInput({ onSendMessage, onTyping, disabled }: ChatInp
                     onChange={handleChange}
                     disabled={disabled}
                     placeholder="Escribe un mensaje..."
-                    className="w-full rounded-full py-3 px-5 pr-12 focus:outline-none focus:ring-2 transition-all border-none"
-                    style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-primary)' }}
+                    className="w-full rounded-full py-3 px-5 pr-12 focus:outline-none focus:ring-2 focus:ring-app-accent transition-all border-none bg-white/5 text-app-text"
                 />
                 <button
                     type="submit"
@@ -42,8 +41,8 @@ export default function ChatInput({ onSendMessage, onTyping, disabled }: ChatInp
                     className={cn(
                         "absolute right-2 p-2 rounded-full transition-colors",
                         message.trim()
-                            ? "bg-blue-600 text-white hover:bg-blue-700"
-                            : "bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700"
+                            ? "bg-app-accent text-black hover:bg-app-accent-hover"
+                            : "bg-white/10 text-app-text/30 cursor-not-allowed"
                     )}
                 >
                     <Send className="w-4 h-4" />

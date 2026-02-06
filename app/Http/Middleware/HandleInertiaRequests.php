@@ -34,6 +34,27 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'modules' => \App\Models\Module::all(),
+            'menu' => $request->user()
+                ? \App\Models\MenuItem::whereNull('parent_id')
+                ->with('children')
+                ->orderBy('order')
+                ->get()
+                ->filter(function ($item) use ($request) {
+                    // Filter by Role
+                    if ($item->roles && !in_array($request->user()->role, $item->roles)) {
+                        return false;
+                    }
+                    // Filter by Module (if enabled)
+                    if ($item->module_slug) {
+                        $module = \App\Models\Module::where('slug', $item->module_slug)->first();
+                        if (!$module || !$module->is_enabled) {
+                            return false;
+                        }
+                    }
+                    return true;
+                })->values()
+                : [],
         ];
     }
 }

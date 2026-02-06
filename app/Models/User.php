@@ -24,6 +24,7 @@ class User extends Authenticatable
         'avatar_color',
         'dark_mode',
         'role',
+        'is_active',
     ];
 
     /**
@@ -46,6 +47,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
     public function conversations(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
@@ -56,5 +58,10 @@ class User extends Authenticatable
     public function messages(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Message::class);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
     }
 }

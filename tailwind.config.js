@@ -13,8 +13,17 @@ export default {
 
     theme: {
         extend: {
-            fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+            colors: {
+                'app-dark': 'var(--color-bg-primary)',
+                'app-card': 'var(--color-bg-tertiary)',
+                'app-accent': 'var(--color-accent)',
+                'app-accent-hover': 'var(--color-accent-hover)',
+                'app-text': 'var(--color-text-primary)',
+                'app-secondary': 'var(--color-bg-secondary)',
+                'app-background': 'var(--color-bg-primary)',
+                'app-border': 'var(--color-border)',
+                'app-input-bg': 'var(--color-input-bg)',
+                'app-input-border': 'var(--color-input-border)',
             },
         },
     },

@@ -1,7 +1,7 @@
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
+import TextFieldCustom from '@/Components/TextFieldCustom';
 import { Switch, Transition } from '@headlessui/react';
 import { Link, useForm, usePage } from '@inertiajs/react';
 import { getBackgroundVariant } from '@/lib/colorUtils';
@@ -56,7 +56,7 @@ export default function UpdateProfileInformation({
                 <div>
                     <InputLabel htmlFor="name" value="Name" />
 
-                    <TextInput
+                    <TextFieldCustom
                         id="name"
                         className="mt-1 block w-full"
                         value={data.name}
@@ -72,7 +72,7 @@ export default function UpdateProfileInformation({
                 <div>
                     <InputLabel htmlFor="email" value="Email" />
 
-                    <TextInput
+                    <TextFieldCustom
                         id="email"
                         type="email"
                         className="mt-1 block w-full"
@@ -96,8 +96,8 @@ export default function UpdateProfileInformation({
                                 type="button" // Prevent form submission
                                 onClick={() => setData('avatar_color', color)}
                                 className={`h-8 w-8 rounded-full border-2 focus:outline-none transition-transform active:scale-95 ${data.avatar_color === color
-                                    ? 'scale-110 ring-2 ring-offset-2 dark:ring-offset-gray-900'
-                                    : 'border-transparent hover:scale-105'
+                                    ? 'scale-110 ring-2 ring-app-accent ring-offset-2 dark:ring-offset-app-background'
+                                    : 'border-transparent hover:scale-105 hover:ring-2 hover:ring-app-accent/50 hover:ring-offset-1 dark:ring-offset-app-background'
                                     }`}
                                 style={{
                                     backgroundColor: color,
@@ -121,7 +121,7 @@ export default function UpdateProfileInformation({
                                 if (checked) document.documentElement.classList.add('dark');
                                 else document.documentElement.classList.remove('dark');
                             }}
-                            className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+                            className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-app-accent focus:ring-offset-2 dark:focus:ring-offset-app-background"
                             style={{
                                 backgroundColor: data.dark_mode ? 'var(--color-primary)' : '#E5E7EB',
                             }}
@@ -145,7 +145,7 @@ export default function UpdateProfileInformation({
                                 href={route('verification.send')}
                                 method="post"
                                 as="button"
-                                className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
+                                className="rounded-md text-sm text-app-accent underline hover:text-app-accent-hover focus:outline-none focus:ring-2 focus:ring-app-accent focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition-colors"
                             >
                                 Click here to re-send the verification email.
                             </Link>

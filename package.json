@@ -1,5 +1,6 @@
 {
     "$schema": "https://www.schemastore.org/package.json",
+    "name": "linz-shell",
     "private": true,
     "type": "module",
     "scripts": {
@@ -27,6 +28,7 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
+        "@heroicons/react": "^2.2.0",
         "@radix-ui/react-slot": "^1.2.4",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",

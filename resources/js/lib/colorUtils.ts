@@ -213,8 +213,26 @@ function adjustColor(color: string, adjustments: { h?: number; s?: number; l?: n
     const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
 
     if (adjustments.h !== undefined) hsl.h = (hsl.h + adjustments.h) % 360;
+
+    // Allow setting absolute values if the adjustment is very specific (hacky way: if < -100 treat as set? No, let's just clamp)
+    // Actually, for background generation, we want a specific look. 
+    // Let's refine the logic: if we provide a 'set' property in adjustments used internally? No, we can just rewrite the function or use a new one.
+    // For now, let's just trust the relative math.
+    // To get a very dark color (L~5) from ANY color:
+    // If L is 50, L-45 = 5. If L is 90, L-85 = 5.
+    // Instead of relative, let's create a helper 'generateTint' or just implement set behavior?
+
+    // Modified logic: If adjustment puts it out of bounds, clamp it.
+    // BUT, for consistent backgrounds, we really want to SET the Lightness to 5-10%, not subtract.
+
     if (adjustments.s !== undefined) hsl.s = Math.max(0, Math.min(100, hsl.s + adjustments.s));
-    if (adjustments.l !== undefined) hsl.l = Math.max(0, Math.min(100, hsl.l + adjustments.l));
+
+    // Basic clamping
+    if (adjustments.l !== undefined) {
+        // If we want to force it dark, we might need a different approach.
+        // Let's assume the input calls will use large negative numbers to force it down.
+        hsl.l = Math.max(0, Math.min(100, hsl.l + adjustments.l));
+    }
 
     const newRgb = hslToRgb(hsl.h, hsl.s, hsl.l);
     return `#${((1 << 24) + (newRgb.r << 16) + (newRgb.g << 8) + newRgb.b).toString(16).slice(1)}`;
@@ -258,6 +276,37 @@ export interface ColorPalette {
     textPrimary: string;    // Primary text color
     textSecondary: string;  // Secondary text color
     textMuted: string;      // Muted/disabled text
+    // Input colors
+    inputBg: string;        // Input background
+    inputBorder: string;    // Input border
+}
+
+/**
+ * Generate a complete color palette from a base color
+ * @param baseColor - HEX color string (user's avatar color)
+ * @param isDark - whether dark mode is active
+ * @returns ColorPalette object with all themed colors
+ */
+/**
+ * Generate a dark background tinted with the base color
+ * @param color - HEX color string
+ * @param lightness - Target lightness percentage (0-100)
+ * @returns HEX color string
+ */
+function generateTintedBackground(color: string, lightness: number): string {
+    const rgb = hexToRgb(color);
+    // Standard fallback to black if invalid color
+    if (!rgb) return '#101010';
+
+    // Convert to HSL
+    const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+
+    // Force specific lightness and low saturation for a subtle background
+    hsl.l = lightness;
+    hsl.s = Math.min(hsl.s, 40); // Increased saturation cap for more perceptible tint
+
+    const newRgb = hslToRgb(hsl.h, hsl.s, hsl.l);
+    return `#${((1 << 24) + (newRgb.r << 16) + (newRgb.g << 8) + newRgb.b).toString(16).slice(1)}`;
 }
 
 /**
@@ -285,13 +334,13 @@ export function generateColorPalette(baseColor: string, isDark: boolean = false)
             surfaceHover: `rgba(${validRgb.r}, ${validRgb.g}, ${validRgb.b}, 0.18)`,
             textOnPrimary: calculateContrastText(baseColor),
 
-            // BORDERS: Neutral gray, NOT yellow
-            border: '#2A2A2C',
+            // BORDERS: Dynamic tinted borders
+            border: generateTintedBackground(baseColor, 12),
 
-            // BACKGROUNDS: Hand-picked premium dark grays (not black)
-            bgPrimary: '#0F0F10',      // Deep charcoal
-            bgSecondary: '#161618',    // Slightly lighter for nav
-            bgTertiary: '#1E1E21',     // Card surface
+            // BACKGROUNDS: Dynamic very dark tint of the primary color
+            bgPrimary: generateTintedBackground(baseColor, 3),      // Deep tinted bg
+            bgSecondary: generateTintedBackground(baseColor, 5),    // Siderbar/Nav
+            bgTertiary: generateTintedBackground(baseColor, 8),     // Card surface
 
             success: '#10B981',
             successLight: 'rgba(16, 185, 129, 0.15)',
@@ -300,7 +349,7 @@ export function generateColorPalette(baseColor: string, isDark: boolean = false)
             danger: '#EF4444',
             dangerLight: 'rgba(239, 68, 68, 0.15)',
             info: '#3B82F6',
-            infoLight: 'rgba(59, 130, 246, 0.15)',
+            infoLight: adjustColor(baseColor, { s: -10, l: -10 }), // Adapted info light
             online: '#10B981',
             offline: '#6B7280',
 
@@ -311,6 +360,10 @@ export function generateColorPalette(baseColor: string, isDark: boolean = false)
             textPrimary: '#F9FAFB',
             textSecondary: '#9CA3AF',
             textMuted: '#6B7280',
+
+            // INPUTS
+            inputBg: generateTintedBackground(baseColor, 6),
+            inputBorder: generateTintedBackground(baseColor, 15),
         };
     } else {
         // LIGHT MODE - Clean, premium "Soft White" foundation
@@ -351,6 +404,10 @@ export function generateColorPalette(baseColor: string, isDark: boolean = false)
             textPrimary: '#111827',
             textSecondary: '#4B5563',
             textMuted: '#9CA3AF',
+
+            // INPUTS (Light Mode)
+            inputBg: '#FFFFFF',
+            inputBorder: '#D1D5DB',
         };
     }
 }
@@ -406,4 +463,8 @@ export function applyPaletteToCSSVariables(palette: ColorPalette): void {
     root.style.setProperty('--color-hover-bg', palette.hoverBg);
     root.style.setProperty('--color-active-bg', palette.activeBg);
     root.style.setProperty('--color-focus-ring', palette.focusRing);
+
+    // Inputs
+    root.style.setProperty('--color-input-bg', palette.inputBg);
+    root.style.setProperty('--color-input-border', palette.inputBorder);
 }

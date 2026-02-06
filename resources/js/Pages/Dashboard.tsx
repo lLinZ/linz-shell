@@ -14,9 +14,10 @@ export default function Dashboard() {
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800">
-                        <div className="p-6 text-gray-900 dark:text-gray-100">
-                            You're logged in!
+                    <div className="overflow-hidden bg-app-card shadow-lg sm:rounded-xl border border-app-border">
+                        <div className="p-6 text-app-text">
+                            <h3 className="text-xl font-bold mb-2 text-white">Welcome back!</h3>
+                            <p className="text-gray-400">You're logged in to the Linz Shell system.</p>
                         </div>
                     </div>
                 </div>

@@ -19,9 +19,11 @@ export default function MessageBubble({ message, isMe }: MessageBubbleProps) {
             isMe ? "ml-auto justify-end" : ""
         )}>
             {!isMe && (
-                <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden">
-                    {/* Avatar placeholder or image */}
-                    <span className="font-bold text-gray-600">{message.user?.name?.charAt(0) || '?'}</span>
+                <div
+                    className="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center overflow-hidden text-white font-bold shadow-sm"
+                    style={{ backgroundColor: message.user?.avatar_color || 'var(--color-primary)' }}
+                >
+                    {message.user?.name?.charAt(0).toUpperCase() || '?'}
                 </div>
             )}
             <div
@@ -29,12 +31,12 @@ export default function MessageBubble({ message, isMe }: MessageBubbleProps) {
                     "relative p-3 rounded-lg shadow-sm text-sm",
                     isMe
                         ? "text-white rounded-br-none"
-                        : "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-bl-none"
+                        : "bg-white dark:bg-app-card text-gray-800 dark:text-gray-100 rounded-bl-none"
                 )}
                 style={isMe ? { backgroundColor: 'var(--color-primary)' } : {}}
             >
                 {!isMe && (
-                    <span className="text-xs text-blue-500 font-bold mb-1 block">
+                    <span className="text-xs text-app-accent font-bold mb-1 block">
                         {message.user?.name}
                     </span>
                 )}

@@ -15,8 +15,8 @@ const DropDownContext = createContext<{
     toggleOpen: () => void;
 }>({
     open: false,
-    setOpen: () => {},
-    toggleOpen: () => {},
+    setOpen: () => { },
+    toggleOpen: () => { },
 });
 
 const Dropdown = ({ children }: PropsWithChildren) => {
@@ -54,20 +54,30 @@ const Content = ({
     align = 'right',
     width = '48',
     contentClasses = 'py-1 bg-white dark:bg-gray-700',
+    direction = 'down', // 'down' or 'up'
     children,
 }: PropsWithChildren<{
     align?: 'left' | 'right';
     width?: '48';
     contentClasses?: string;
+    direction?: 'down' | 'up';
 }>) => {
     const { open, setOpen } = useContext(DropDownContext);
 
     let alignmentClasses = 'origin-top';
 
+    if (direction === 'up') {
+        alignmentClasses = 'origin-bottom';
+    }
+
     if (align === 'left') {
-        alignmentClasses = 'ltr:origin-top-left rtl:origin-top-right start-0';
+        alignmentClasses += direction === 'down'
+            ? ' ltr:origin-top-left rtl:origin-top-right start-0'
+            : ' ltr:origin-bottom-left rtl:origin-bottom-right start-0';
     } else if (align === 'right') {
-        alignmentClasses = 'ltr:origin-top-right rtl:origin-top-left end-0';
+        alignmentClasses += direction === 'down'
+            ? ' ltr:origin-top-right rtl:origin-top-left end-0'
+            : ' ltr:origin-bottom-right rtl:origin-bottom-left end-0';
     }
 
     let widthClasses = '';
@@ -75,6 +85,8 @@ const Content = ({
     if (width === '48') {
         widthClasses = 'w-48';
     }
+
+    let verticalClasses = direction === 'down' ? 'mt-2' : 'mb-2 bottom-full';
 
     return (
         <>
@@ -88,7 +100,7 @@ const Content = ({
                 leaveTo="opacity-0 scale-95"
             >
                 <div
-                    className={`absolute z-50 mt-2 rounded-md shadow-lg ${alignmentClasses} ${widthClasses}`}
+                    className={`absolute z-50 rounded-md shadow-lg ${verticalClasses} ${alignmentClasses} ${widthClasses}`}
                     onClick={() => setOpen(false)}
                 >
                     <div

@@ -169,7 +169,7 @@ export default function ChatWindow({ conversation, currentUser, onUpdate }: Chat
                                 type="text"
                                 value={editName}
                                 onChange={(e) => setEditName(e.target.value)}
-                                className="flex-1 rounded-md border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm dark:text-white py-1 px-2 focus:ring-blue-500 focus:border-blue-500"
+                                className="flex-1 rounded-md border-app-input-border bg-app-input-bg text-sm text-app-text py-1 px-2 focus:ring-app-accent focus:border-app-accent"
                                 autoFocus
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter') saveName();
@@ -199,7 +199,7 @@ export default function ChatWindow({ conversation, currentUser, onUpdate }: Chat
                             {!conversation.is_private && currentUser.role === 'admin' && (
                                 <button
                                     onClick={startEditing}
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-gray-400 hover:text-blue-500"
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-app-text/40 hover:text-app-accent"
                                     title="Editar nombre"
                                 >
                                     <Pen className="w-3.5 h-3.5" />
@@ -225,7 +225,7 @@ export default function ChatWindow({ conversation, currentUser, onUpdate }: Chat
             >
                 {loading && (
                     <div className="flex justify-center items-center h-full">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-app-accent"></div>
                     </div>
                 )}
 
@@ -291,7 +291,7 @@ export default function ChatWindow({ conversation, currentUser, onUpdate }: Chat
                                 leaveFrom="opacity-100 scale-100"
                                 leaveTo="opacity-0 scale-95"
                             >
-                                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-900 p-6 text-left align-middle shadow-xl transition-all">
+                                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-app-background p-6 text-left align-middle shadow-xl transition-all">
                                     <div className="flex justify-between items-center mb-4">
                                         <Dialog.Title
                                             as="h3"
@@ -309,14 +309,14 @@ export default function ChatWindow({ conversation, currentUser, onUpdate }: Chat
 
                                     {/* Admin Add User Section */}
                                     {currentUser.role === 'admin' && !conversation.is_private && (
-                                        <div className="mb-4 bg-gray-50 dark:bg-gray-800 p-3 rounded-md">
+                                        <div className="mb-4 bg-gray-50 dark:bg-app-card p-3 rounded-md">
                                             <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase">Agregar Usuario</p>
                                             <input
                                                 type="text"
                                                 placeholder="Buscar por nombre o email..."
                                                 value={searchUserQuery}
                                                 onChange={(e) => setSearchUserQuery(e.target.value)}
-                                                className="w-full text-sm rounded border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 dark:text-white mb-2"
+                                                className="w-full text-sm rounded border-app-input-border bg-app-input-bg text-app-text mb-2 focus:ring-app-accent focus:border-app-accent"
                                             />
                                             {isSearching && <p className="text-xs text-gray-500">Buscando...</p>}
                                             {searchResults.length > 0 && (
@@ -325,18 +325,18 @@ export default function ChatWindow({ conversation, currentUser, onUpdate }: Chat
                                                         <button
                                                             key={user.id}
                                                             onClick={() => addUser(user.id)}
-                                                            className="w-full flex items-center justify-between p-2 rounded hover:bg-blue-50 dark:hover:bg-blue-900/30 text-left group"
+                                                            className="w-full flex items-center justify-between p-2 rounded hover:bg-app-accent/10 text-left group transition-colors"
                                                         >
                                                             <div className="flex items-center space-x-2">
                                                                 <div
                                                                     className="h-6 w-6 rounded-full flex items-center justify-center text-white text-xs"
-                                                                    style={{ backgroundColor: user.avatar_color || '#3b82f6' }}
+                                                                    style={{ backgroundColor: user.avatar_color || 'var(--color-primary)' }}
                                                                 >
                                                                     {user.name.charAt(0).toUpperCase()}
                                                                 </div>
-                                                                <span className="text-sm dark:text-gray-200">{user.name}</span>
+                                                                <span className="text-sm text-app-text">{user.name}</span>
                                                             </div>
-                                                            <span className="text-xs text-blue-600 font-bold opacity-0 group-hover:opacity-100">AGREGAR</span>
+                                                            <span className="text-xs text-app-accent font-bold opacity-0 group-hover:opacity-100">AGREGAR</span>
                                                         </button>
                                                     ))}
                                                 </div>
@@ -354,7 +354,7 @@ export default function ChatWindow({ conversation, currentUser, onUpdate }: Chat
                                                     <div className="flex items-center space-x-3">
                                                         <div
                                                             className="h-10 w-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
-                                                            style={{ backgroundColor: user.avatar_color || '#3b82f6' }}
+                                                            style={{ backgroundColor: user.avatar_color || 'var(--color-primary)' }}
                                                         >
                                                             {user.name.charAt(0).toUpperCase()}
                                                         </div>
@@ -365,8 +365,8 @@ export default function ChatWindow({ conversation, currentUser, onUpdate }: Chat
                                                     </div>
                                                     <div className="flex items-center space-x-2">
                                                         <div className="flex items-center space-x-1">
-                                                            <span className={`h-2.5 w-2.5 rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}`} />
-                                                            <span className="text-xs text-gray-500 w-10">{isOnline ? 'Online' : 'Offline'}</span>
+                                                            <span className={`h-2.5 w-2.5 rounded-full ${isOnline ? 'bg-green-500' : 'bg-white/20'}`} />
+                                                            <span className="text-xs text-app-text/50 w-10">{isOnline ? 'Online' : 'Offline'}</span>
                                                         </div>
                                                         {canRemove && (
                                                             <button
