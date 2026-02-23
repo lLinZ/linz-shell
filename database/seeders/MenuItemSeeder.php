@@ -78,5 +78,12 @@ class MenuItemSeeder extends Seeder
             'order' => 40,
             'roles' => ['admin'],
         ]);
+
+        MenuItem::updateOrCreate(['label' => 'System Settings'], [
+            'route' => 'admin.settings.index',
+            'parent_id' => $adminParent->id,
+            'order' => 50,
+            'roles' => ['admin'],
+        ]);
     }
 }

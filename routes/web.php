@@ -26,6 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware(['module:chat'])->group(function () {
         Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
+        Route::post('/chat/group', [App\Http\Controllers\ChatController::class, 'storeGroup'])->name('chat.group.store');
         Route::get('/chat/search-all-users', [App\Http\Controllers\ChatController::class, 'searchAllUsers']);
         Route::post('/chat/private/{user}', [App\Http\Controllers\ChatController::class, 'startPrivateChat']);
         Route::get('/chat/{conversation}/messages', [App\Http\Controllers\ChatController::class, 'messages'])->name('chat.messages.index');
@@ -35,6 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/chat/{conversation}/users', [App\Http\Controllers\ChatController::class, 'removeParticipant'])->name('chat.users.remove');
         Route::get('/chat/{conversation}/search-users', [App\Http\Controllers\ChatController::class, 'searchUsers'])->name('chat.users.search');
         Route::post('/chat/{conversation}/messages', [App\Http\Controllers\ChatController::class, 'store'])->name('chat.messages.store');
+        Route::post('/chat/messages/{message}/react', [App\Http\Controllers\ChatController::class, 'react'])->name('chat.messages.react');
     });
 
     Route::middleware(['module:shopping-cart'])->group(function () {
@@ -59,6 +61,9 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     Route::get('/landing-page', [App\Http\Controllers\Admin\AdminLandingPageController::class, 'edit'])->name('landing-page.edit');
     Route::put('/landing-page', [App\Http\Controllers\Admin\AdminLandingPageController::class, 'update'])->name('landing-page.update');
+
+    Route::get('/settings', [App\Http\Controllers\Admin\AdminSystemSettingController::class, 'index'])->name('settings.index');
+    Route::patch('/settings', [App\Http\Controllers\Admin\AdminSystemSettingController::class, 'update'])->name('settings.update');
 
     Route::resource('products', App\Http\Controllers\Admin\AdminProductController::class)->except(['create', 'show', 'edit']);
     Route::resource('menus', App\Http\Controllers\Admin\AdminMenuController::class)->except(['create', 'show', 'edit']);

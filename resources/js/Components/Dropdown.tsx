@@ -8,6 +8,8 @@ import {
     useContext,
     useState,
 } from 'react';
+import { Surface } from './ui/Surface';
+import { cn } from '@/lib/utils';
 
 const DropDownContext = createContext<{
     open: boolean;
@@ -53,7 +55,7 @@ const Trigger = ({ children }: PropsWithChildren) => {
 const Content = ({
     align = 'right',
     width = '48',
-    contentClasses = 'py-1 bg-white dark:bg-gray-700',
+    contentClasses = '',
     direction = 'down', // 'down' or 'up'
     children,
 }: PropsWithChildren<{
@@ -65,10 +67,7 @@ const Content = ({
     const { open, setOpen } = useContext(DropDownContext);
 
     let alignmentClasses = 'origin-top';
-
-    if (direction === 'up') {
-        alignmentClasses = 'origin-bottom';
-    }
+    if (direction === 'up') alignmentClasses = 'origin-bottom';
 
     if (align === 'left') {
         alignmentClasses += direction === 'down'
@@ -80,40 +79,32 @@ const Content = ({
             : ' ltr:origin-bottom-right rtl:origin-bottom-left end-0';
     }
 
-    let widthClasses = '';
-
-    if (width === '48') {
-        widthClasses = 'w-48';
-    }
-
+    let widthClasses = width === '48' ? 'w-48' : '';
     let verticalClasses = direction === 'down' ? 'mt-2' : 'mb-2 bottom-full';
 
     return (
-        <>
-            <Transition
-                show={open}
-                enter="transition ease-out duration-200"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="transition ease-in duration-75"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
+        <Transition
+            show={open}
+            enter="transition ease-out duration-200"
+            enterFrom="opacity-0 scale-95"
+            enterTo="opacity-100 scale-100"
+            leave="transition ease-in duration-75"
+            leaveFrom="opacity-100 scale-100"
+            leaveTo="opacity-0 scale-95"
+        >
+            <div
+                className={`absolute z-50 ${verticalClasses} ${alignmentClasses} ${widthClasses}`}
+                onClick={() => setOpen(false)}
             >
-                <div
-                    className={`absolute z-50 rounded-md shadow-lg ${verticalClasses} ${alignmentClasses} ${widthClasses}`}
-                    onClick={() => setOpen(false)}
+                <Surface
+                    variant="primary"
+                    size="none"
+                    className={cn("overflow-hidden py-1", contentClasses)}
                 >
-                    <div
-                        className={
-                            `rounded-md ring-1 ring-black ring-opacity-5 ` +
-                            contentClasses
-                        }
-                    >
-                        {children}
-                    </div>
-                </div>
-            </Transition>
-        </>
+                    {children}
+                </Surface>
+            </div>
+        </Transition>
     );
 };
 

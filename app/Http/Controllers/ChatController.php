@@ -46,7 +46,8 @@ class ChatController extends Controller
     public function store(Request $request, \App\Models\Conversation $conversation, \App\Actions\Chat\SendMessage $sendMessageAction)
     {
         $request->validate([
-            'body' => 'required|string|max:5000',
+            'body'        => 'required|string|max:5000',
+            'reply_to_id' => 'nullable|integer|exists:messages,id',
         ]);
 
         // Security check: Ensure user belongs to conversation
@@ -57,17 +58,17 @@ class ChatController extends Controller
         $message = $sendMessageAction->handle(
             Auth::user(),
             $conversation,
-            $request->input('body')
+            $request->input('body'),
+            $request->input('reply_to_id')
         );
-
-        // Load relationships for the frontend to display correctly immediately (e.g. user name/avatar)
-        $message->load('user');
 
         return response()->json($message);
     }
 
     /**
-     * Get messages for a conversation.
+     * Get messages for a conversation (with reactions and reply-to).
+     * Reactions are normalized to the same grouped format returned by react():
+     * { '👍': [{id, name}, ...], '❤️': [...] }
      */
     public function messages(\App\Models\Conversation $conversation)
     {
@@ -76,13 +77,33 @@ class ChatController extends Controller
             abort(403);
         }
 
-        // Use cursor pagination for infinite scroll
-        $messages = $conversation->messages()
-            ->with('user')
+        $paginated = $conversation->messages()
+            ->with([
+                'user:id,name,avatar_color',
+                'replyTo.user:id,name,avatar_color',
+                'reactions.user:id,name',
+            ])
             ->latest()
             ->cursorPaginate(20);
 
-        return $messages;
+        // Normalize reactions to { emoji: [{id, name}] } — same shape as react() response
+        $paginated->through(function ($message) {
+            $reactions = $message->reactions ?? collect([]);
+            
+            $grouped = $reactions
+                ->groupBy('emoji')
+                ->map(fn($group) => $group->map(fn($r) => [
+                    'id'   => $r->user_id,
+                    'name' => $r->user->name,
+                ]));
+            
+            $message->unsetRelation('reactions');
+            $message->setAttribute('reactions', $grouped);
+            
+            return $message;
+        });
+
+        return $paginated;
     }
 
     /**
@@ -149,6 +170,53 @@ class ChatController extends Controller
         $conversation->users()->detach($request->user_id);
 
         return response()->json(['message' => 'User removed']);
+    }
+
+    /**
+     * Toggle an emoji reaction on a message.
+     */
+    public function react(Request $request, \App\Models\Message $message)
+    {
+        $request->validate([
+            'emoji' => 'required|string|max:20',
+        ]);
+
+        // Security: user must belong to the conversation
+        if (!$message->conversation->users()->where('user_id', Auth::id())->exists()) {
+            abort(403);
+        }
+
+        $existing = \App\Models\MessageReaction::where([
+            'message_id' => $message->id,
+            'user_id'    => Auth::id(),
+            'emoji'      => $request->emoji,
+        ])->first();
+
+        if ($existing) {
+            $existing->delete();
+        } else {
+            \App\Models\MessageReaction::create([
+                'message_id' => $message->id,
+                'user_id'    => Auth::id(),
+                'emoji'      => $request->emoji,
+            ]);
+        }
+
+        // Reload and group reactions: { '👍': [{id, name}], ... }
+        $message->load('reactions.user:id,name');
+        $grouped = $message->reactions
+            ->groupBy('emoji')
+            ->map(fn($group) => $group->map(fn($r) => ['id' => $r->user_id, 'name' => $r->user->name]))
+            ->toArray();
+
+        // Broadcast to all others in the channel
+        broadcast(new \App\Events\ReactionToggled(
+            $message->id,
+            $message->conversation_id,
+            $grouped
+        ))->toOthers();
+
+        return response()->json($grouped);
     }
 
     /**
@@ -223,6 +291,30 @@ class ChatController extends Controller
         ]);
 
         $conversation->users()->attach([$authId, $targetId]);
+
+        return response()->json($conversation);
+    }
+
+    /**
+     * Create a new group conversation.
+     */
+    public function storeGroup(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        // Authorization: Only admin can create groups
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        $conversation = \App\Models\Conversation::create([
+            'name' => $request->name,
+            'is_private' => false,
+        ]);
+
+        $conversation->users()->attach(Auth::id());
 
         return response()->json($conversation);
     }

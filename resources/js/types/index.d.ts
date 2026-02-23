@@ -24,6 +24,7 @@ export type PageProps<T extends Record<string, unknown> = Record<string, unknown
     };
     modules: any[];
     menu: MenuItem[];
+    settings: Record<string, string>;
 };
 
 export interface Conversation {

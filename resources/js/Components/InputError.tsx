@@ -1,4 +1,6 @@
 import { HTMLAttributes } from 'react';
+import { Typography } from '@/Components/ui/Typography';
+import { cn } from '@/lib/utils';
 
 export default function InputError({
     message,
@@ -6,11 +8,13 @@ export default function InputError({
     ...props
 }: HTMLAttributes<HTMLParagraphElement> & { message?: string }) {
     return message ? (
-        <p
+        <Typography
+            variant="small"
+            component="p"
             {...props}
-            className={'text-sm text-red-600 dark:text-red-400 ' + className}
+            className={cn('text-red-600 dark:text-red-400', className)}
         >
             {message}
-        </p>
+        </Typography>
     ) : null;
 }

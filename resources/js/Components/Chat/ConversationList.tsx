@@ -3,6 +3,8 @@ import { User } from "@/types";
 import { generateDarkVariant, generateLightVariant, generateAccentColor, generateTextColor, getBackgroundVariant } from '@/lib/colorUtils';
 import Avatar from "@/Components/ui/Avatar";
 import { Badge } from "@/Components/ui/badge";
+import { Button } from "@/Components/ui/button";
+import { Typography } from "@/Components/ui/Typography";
 
 interface Conversation {
     id: number;
@@ -32,11 +34,13 @@ export default function ConversationList({ conversations, activeId, onSelect, on
                 const isOnline = conv.is_private && conv.other_user_id && onlineUserIds.includes(conv.other_user_id);
 
                 return (
-                    <button
+                    <Button
                         key={conv.id}
+                        variant="ghost"
+                        size="none"
                         onClick={() => onSelect(conv.id)}
                         className={cn(
-                            "flex items-center p-3 rounded-lg transition-all duration-200 text-left theme-hover",
+                            "flex items-center p-3 rounded-lg transition-all duration-200 text-left theme-hover h-auto justify-start",
                             activeId === conv.id
                                 ? "theme-active relative overflow-hidden"
                                 : ""
@@ -57,23 +61,23 @@ export default function ConversationList({ conversations, activeId, onSelect, on
 
                         <div className="ml-3 flex-1 overflow-hidden">
                             <div className="flex justify-between items-center">
-                                <h4 className="text-sm font-semibold truncate text-gray-900 dark:text-gray-100">
+                                <Typography variant="small" className="font-semibold truncate text-[var(--color-text-primary)]">
                                     {conv.name}
-                                </h4>
+                                </Typography>
                                 {conv.unread_count && conv.unread_count > 0 ? (
                                     <Badge variant="danger" className="ml-2">
                                         {conv.unread_count}
                                     </Badge>
                                 ) : null}
                             </div>
-                            <p className={cn(
-                                "text-xs truncate flex items-center gap-1",
-                                isOnline ? "text-green-600 dark:text-green-400" : "text-gray-500 dark:text-gray-400"
+                            <Typography variant="muted" className={cn(
+                                "text-[11px] truncate flex items-center gap-1",
+                                isOnline ? "text-green-600 dark:text-green-400" : "text-[var(--color-text-muted)]"
                             )}>
                                 {isOnline ? 'En línea' : 'Desconectado'}
-                            </p>
+                            </Typography>
                         </div>
-                    </button>
+                    </Button>
                 );
             })}
         </div>

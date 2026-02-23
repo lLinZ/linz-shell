@@ -35,6 +35,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'modules' => \App\Models\Module::all(),
+            'settings' => \App\Models\SystemSetting::all()->pluck('value', 'key'),
             'menu' => $request->user()
                 ? \App\Models\MenuItem::whereNull('parent_id')
                 ->with('children')

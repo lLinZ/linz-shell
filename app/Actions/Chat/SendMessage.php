@@ -9,21 +9,17 @@ use App\Events\MessageSent;
 
 class SendMessage
 {
-    /**
-     * Send a message in a conversation.
-     *
-     * @param User $user
-     * @param Conversation $conversation
-     * @param string $body
-     * @return Message
-     */
-    public function handle(User $user, Conversation $conversation, string $body): Message
+    public function handle(User $user, Conversation $conversation, string $body, ?int $replyToId = null): Message
     {
         /** @var Message $message */
         $message = $conversation->messages()->create([
-            'user_id' => $user->id,
-            'body' => $body,
+            'user_id'     => $user->id,
+            'body'        => $body,
+            'reply_to_id' => $replyToId,
         ]);
+
+        // Load relations needed for frontend display
+        $message->load('user', 'replyTo.user');
 
         broadcast(new MessageSent($message))->toOthers();
 

@@ -358,8 +358,8 @@ export function generateColorPalette(baseColor: string, isDark: boolean = false)
             focusRing: `rgba(${validRgb.r}, ${validRgb.g}, ${validRgb.b}, 0.5)`,
 
             textPrimary: '#F9FAFB',
-            textSecondary: '#9CA3AF',
-            textMuted: '#6B7280',
+            textSecondary: '#D1D5DB', // Gray 300 instead of 400
+            textMuted: '#9CA3AF',     // Gray 400 instead of 500
 
             // INPUTS
             inputBg: generateTintedBackground(baseColor, 6),
@@ -402,8 +402,8 @@ export function generateColorPalette(baseColor: string, isDark: boolean = false)
             focusRing: `rgba(${validRgb.r}, ${validRgb.g}, ${validRgb.b}, 0.4)`,
 
             textPrimary: '#111827',
-            textSecondary: '#4B5563',
-            textMuted: '#9CA3AF',
+            textSecondary: '#374151',
+            textMuted: '#6B7280',
 
             // INPUTS (Light Mode)
             inputBg: '#FFFFFF',

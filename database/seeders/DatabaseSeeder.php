@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             ProductSeeder::class,
             MenuItemSeeder::class,
             ChatSeeder::class,
+            SystemSettingSeeder::class,
         ]);
     }
 }

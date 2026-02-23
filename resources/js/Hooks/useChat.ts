@@ -1,11 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import axios from 'axios';
 import { User } from '@/types';
+import { useChatSound } from '@/Components/Chat/ChatSoundContext';
 
 export const useChat = (conversationId: number, currentUserId?: number) => {
     const [messages, setMessages] = useState<any[]>([]);
     const [isTyping, setIsTyping] = useState(false);
-    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const { playNotification } = useChatSound();
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     // Presence state
@@ -17,11 +18,8 @@ export const useChat = (conversationId: number, currentUserId?: number) => {
     const [loadingMore, setLoadingMore] = useState(false);
     const [nextCursor, setNextCursor] = useState<string | null>(null);
 
-    useEffect(() => {
-        audioRef.current = new Audio('/sounds/notification.mp3');
-    }, []);
 
-    const loadMessages = (cursor: string | null = null) => {
+    const loadMessages = useCallback((cursor: string | null = null) => {
         if (!conversationId) return;
 
         const isInitialLoad = !cursor;
@@ -31,7 +29,7 @@ export const useChat = (conversationId: number, currentUserId?: number) => {
         const url = `/chat/${conversationId}/messages` + (cursor ? `?cursor=${cursor}` : '');
 
         axios.get(url).then(response => {
-            const newMessages = response.data.data.reverse(); // Backend returns latest first (desc), we display asc
+            const newMessages = response.data.data.reverse();
 
             if (isInitialLoad) {
                 setMessages(newMessages);
@@ -45,7 +43,7 @@ export const useChat = (conversationId: number, currentUserId?: number) => {
                 setLoading(false);
                 setLoadingMore(false);
             });
-    };
+    }, [conversationId]);
 
     useEffect(() => {
         if (!conversationId) return;
@@ -65,7 +63,6 @@ export const useChat = (conversationId: number, currentUserId?: number) => {
         }).catch(error => console.error("Failed to load users:", error));
 
         // @ts-ignore
-        // JOINING PRESENCE CHANNEL
         const channel = window.Echo.join(`chat.${conversationId}`)
             .here((users: User[]) => {
                 setOnlineUsers(users);
@@ -83,10 +80,18 @@ export const useChat = (conversationId: number, currentUserId?: number) => {
                 });
 
                 if (currentUserId && e.message.user_id !== currentUserId) {
-                    audioRef.current?.play().catch(e => console.error("Audio play failed", e));
+                    playNotification();
                 }
             })
-            .listenForWhisper('typing', (e: any) => {
+            .listen('ReactionToggled', (e: any) => {
+                // Update the reactions on the specific message
+                setMessages(prev => prev.map(msg =>
+                    msg.id === e.message_id
+                        ? { ...msg, reactions: e.reactions }
+                        : msg
+                ));
+            })
+            .listenForWhisper('typing', (_e: any) => {
                 setIsTyping(true);
                 if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
                 typingTimeoutRef.current = setTimeout(() => setIsTyping(false), 3000);
@@ -96,7 +101,7 @@ export const useChat = (conversationId: number, currentUserId?: number) => {
             // @ts-ignore
             window.Echo.leave(`chat.${conversationId}`);
         };
-    }, [conversationId, currentUserId]);
+    }, [conversationId, currentUserId, loadMessages]);
 
     const fetchUsers = () => {
         if (!conversationId) return;
@@ -105,13 +110,30 @@ export const useChat = (conversationId: number, currentUserId?: number) => {
         }).catch(error => console.error("Failed to load users:", error));
     };
 
-    const sendMessage = async (body: string) => {
+    const sendMessage = async (body: string, replyToId?: number) => {
         if (!conversationId) return;
         try {
-            const response = await axios.post(`/chat/${conversationId}/messages`, { body });
+            const response = await axios.post(`/chat/${conversationId}/messages`, {
+                body,
+                reply_to_id: replyToId ?? null,
+            });
             setMessages((prev) => [...prev, response.data]);
         } catch (error) {
             console.error("Failed to send message:", error);
+        }
+    };
+
+    const reactToMessage = async (messageId: number, emoji: string) => {
+        try {
+            const response = await axios.post(`/chat/messages/${messageId}/react`, { emoji });
+            // Optimistic update: apply immediately from response
+            setMessages(prev => prev.map(msg =>
+                msg.id === messageId
+                    ? { ...msg, reactions: response.data }
+                    : msg
+            ));
+        } catch (error) {
+            console.error("Failed to react to message:", error);
         }
     };
 
@@ -133,6 +155,7 @@ export const useChat = (conversationId: number, currentUserId?: number) => {
         isTyping,
         sendMessage,
         sendTyping,
+        reactToMessage,
         onlineUsers,
         allUsers,
         refreshUsers: fetchUsers,
