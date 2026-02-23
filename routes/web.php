@@ -7,12 +7,16 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
+    $page = \App\Models\Page::where('slug', 'welcome')->with(['blocks' => function($q) {
+        $q->orderBy('order');
+    }])->first();
+
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
-        'landingSections' => \App\Models\LandingPage::where('is_visible', true)->orderBy('order')->get(),
+        'blocks' => $page ? $page->blocks : [],
     ]);
 });
 
@@ -59,8 +63,11 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/modules', [App\Http\Controllers\Admin\AdminModuleController::class, 'index'])->name('modules.index');
     Route::patch('/modules/{module}', [App\Http\Controllers\Admin\AdminModuleController::class, 'update'])->name('modules.update');
 
-    Route::get('/landing-page', [App\Http\Controllers\Admin\AdminLandingPageController::class, 'edit'])->name('landing-page.edit');
-    Route::put('/landing-page', [App\Http\Controllers\Admin\AdminLandingPageController::class, 'update'])->name('landing-page.update');
+    // Page Builder (Modular SaaS Core)
+    Route::get('/landing-page', [App\Http\Controllers\Admin\PageBuilderController::class, 'index'])->name('landing-page.index');
+    Route::post('/landing-page/reorder', [App\Http\Controllers\Admin\PageBuilderController::class, 'reorder'])->name('landing-page.reorder');
+    Route::patch('/landing-page/blocks/{block}', [App\Http\Controllers\Admin\PageBuilderController::class, 'updateBlock'])->name('landing-page.block.update');
+    Route::delete('/landing-page/blocks/{block}', [App\Http\Controllers\Admin\PageBuilderController::class, 'destroy'])->name('landing-page.block.destroy');
 
     Route::get('/settings', [App\Http\Controllers\Admin\AdminSystemSettingController::class, 'index'])->name('settings.index');
     Route::patch('/settings', [App\Http\Controllers\Admin\AdminSystemSettingController::class, 'update'])->name('settings.update');

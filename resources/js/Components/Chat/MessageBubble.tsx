@@ -297,17 +297,19 @@ export default function MessageBubble({
                     </div>
 
                     {/* Reaction pills */}
-                    {reactionEntries.length > 0 && (
+                    {Object.entries(message.reactions || {}).length > 0 && (
                         <div className={cn("flex flex-wrap gap-1 mt-1", isMe ? "justify-end" : "justify-start")}>
-                            {reactionEntries.map(([emoji, users]) => {
-                                const iReacted = Array.isArray(users) && users.some(u => u.id === currentUserId);
+                            {Object.entries(message.reactions || {}).map(([emoji, users]) => {
+                                const safeUsers = Array.isArray(users) ? users : [];
+                                const iReacted = safeUsers.some(u => u && u.id === currentUserId);
+
                                 return (
                                     <Button
                                         key={emoji}
                                         variant="outline"
                                         size="none"
                                         onClick={() => onReact(message.id, emoji)}
-                                        title={Array.isArray(users) ? users.map(u => u.name).join(', ') : ''}
+                                        title={safeUsers.map(u => u?.name).filter(Boolean).join(', ')}
                                         className={cn(
                                             "flex items-center gap-1 px-2 py-0.5 rounded-full text-xs h-auto",
                                             "transition-all duration-150 hover:scale-105 active:scale-95",
@@ -316,7 +318,7 @@ export default function MessageBubble({
                                                 : "bg-[var(--color-bg-tertiary)] border-[var(--color-border)] hover:border-[var(--color-primary)]/50"
                                         )}
                                     >
-                                        {emoji} <span>{Array.isArray(users) ? users.length : 0}</span>
+                                        {emoji} <span className="pointer-events-none">{safeUsers.length}</span>
                                     </Button>
                                 );
                             })}
