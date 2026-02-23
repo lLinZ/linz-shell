@@ -50,7 +50,7 @@ class MenuItemSeeder extends Seeder
         ]);
 
         MenuItem::updateOrCreate(['label' => 'Landing Page'], [
-            'route' => 'admin.landing-page.edit',
+            'route' => 'admin.landing-page.index',
             'parent_id' => $adminParent->id,
             'order' => 20,
             'roles' => ['admin'],

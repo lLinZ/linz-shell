@@ -5,6 +5,11 @@ import { Surface } from '@/Components/ui/Surface';
 import { Typography } from '@/Components/ui/Typography';
 import { Button } from '@/Components/ui/button';
 import Modal from '@/Components/Modal';
+import TextInput from '@/Components/TextInput';
+import InputLabel from '@/Components/InputLabel';
+import PrimaryButton from '@/Components/PrimaryButton';
+import SecondaryButton from '@/Components/SecondaryButton';
+import TextAreaCustom from '@/Components/TextAreaCustom';
 import { ChevronUp, ChevronDown, Edit3, Trash2, Layout, Save, X } from 'lucide-react';
 
 interface PageBlock {
@@ -28,6 +33,7 @@ interface Props {
 
 export default function Index({ page, blocks }: Props) {
     const [editingBlock, setEditingBlock] = useState<PageBlock | null>(null);
+    const [isSelectingBlock, setIsSelectingBlock] = useState(false);
     const { data, setData, patch, processing, reset } = useForm({
         payload_json: {} as any
     });
@@ -79,9 +85,12 @@ export default function Index({ page, blocks }: Props) {
                 <div className="flex justify-between items-center">
                     <Typography variant="h2">Constructor de Página: {page.title}</Typography>
                     <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => window.open('/', '_blank')}>
                             <Layout className="w-4 h-4 mr-2" /> Previsualizar
                         </Button>
+                        <PrimaryButton onClick={() => setIsSelectingBlock(true)} className="py-2">
+                            + Añadir Bloque
+                        </PrimaryButton>
                     </div>
                 </div>
             }
@@ -150,14 +159,19 @@ export default function Index({ page, blocks }: Props) {
                 </Surface>
             </div>
 
-            {/* Panel de Edición (Modal) */}
+            {/* Panel de Edición (Modal - Portalled) */}
             <Modal show={!!editingBlock} onClose={() => setEditingBlock(null)} maxWidth="2xl">
-                <form onSubmit={handleUpdate} className="p-6 bg-[var(--color-bg-secondary)]">
-                    <div className="flex justify-between items-center mb-6">
+                <form onSubmit={handleUpdate} className="p-6">
+                    <div className="flex justify-between items-center mb-6 border-b border-[var(--color-border)] pb-4">
                         <Typography variant="h3">
                             Editar {editingBlock?.block_type}
                         </Typography>
-                        <Button variant="ghost" size="none" onClick={() => setEditingBlock(null)}>
+                        <Button
+                            variant="ghost"
+                            size="none"
+                            onClick={() => setEditingBlock(null)}
+                            className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors p-1"
+                        >
                             <X className="w-6 h-6" />
                         </Button>
                     </div>
@@ -166,27 +180,23 @@ export default function Index({ page, blocks }: Props) {
                         {editingBlock && Object.keys(data.payload_json).map((key) => {
                             const val = data.payload_json[key];
 
-                            // Simple Form Logic for SaaS Core
                             return (
                                 <div key={key}>
-                                    <Typography variant="small" className="font-bold uppercase text-[10px] mb-1 opacity-60">
-                                        {key.replace(/_/g, ' ')}
-                                    </Typography>
+                                    <InputLabel value={key.replace(/_/g, ' ').toUpperCase()} />
 
                                     {typeof val === 'string' && val.length > 50 ? (
-                                        <textarea
-                                            className="w-full bg-[var(--color-bg-tertiary)] border-[var(--color-border)] rounded-xl text-sm p-3 focus:ring-2 focus:ring-[var(--color-primary)] transition-all min-h-[100px]"
+                                        <TextAreaCustom
+                                            className="mt-1 block w-full"
                                             value={val}
                                             onChange={(e) => setData('payload_json', { ...data.payload_json, [key]: e.target.value })}
                                         />
                                     ) : (
-                                        <input
+                                        <TextInput
                                             type="text"
-                                            className="w-full bg-[var(--color-bg-tertiary)] border-[var(--color-border)] rounded-xl text-sm p-3 focus:ring-2 focus:ring-[var(--color-primary)] transition-all"
+                                            className="mt-1 block w-full"
                                             value={typeof val === 'object' ? JSON.stringify(val) : val}
                                             onChange={(e) => {
                                                 let finalVal: any = e.target.value;
-                                                // Minimalist JSON auto-parse if object was expected
                                                 if (typeof val === 'object' && val !== null) {
                                                     try { finalVal = JSON.parse(e.target.value); } catch (e) { }
                                                 }
@@ -200,14 +210,62 @@ export default function Index({ page, blocks }: Props) {
                     </div>
 
                     <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-[var(--color-border)]">
-                        <Button variant="outline" onClick={() => setEditingBlock(null)}>
+                        <SecondaryButton onClick={() => setEditingBlock(null)}>
                             Cancelar
-                        </Button>
-                        <Button disabled={processing}>
+                        </SecondaryButton>
+                        <PrimaryButton disabled={processing}>
                             <Save className="w-4 h-4 mr-2" /> Guardar Cambios
-                        </Button>
+                        </PrimaryButton>
                     </div>
                 </form>
+            </Modal>
+
+            {/* Selector de Nuevo Bloque */}
+            <Modal show={isSelectingBlock} onClose={() => setIsSelectingBlock(false)} maxWidth="lg">
+                <div className="p-6">
+                    <div className="flex justify-between items-center mb-6 border-b border-[var(--color-border)] pb-4">
+                        <Typography variant="h3">Seleccionar Tipo de Bloque</Typography>
+                        <Button variant="ghost" size="none" onClick={() => setIsSelectingBlock(false)}>
+                            <X className="w-6 h-6" />
+                        </Button>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4">
+                        <Surface
+                            variant="secondary"
+                            className="p-4 cursor-pointer hover:border-[var(--color-primary)] border-2 border-transparent transition-all group"
+                            onClick={() => {
+                                setIsSelectingBlock(false);
+                                router.post(route('admin.landing-page.store'), {
+                                    module_namespace: 'Core',
+                                    block_type: 'Hero'
+                                });
+                            }}
+                        >
+                            <Typography variant="h4" className="group-hover:text-[var(--color-primary)]">🚀 Hero Section</Typography>
+                            <Typography variant="small" className="text-[var(--color-text-muted)]">Bloque de cabecera con título, subtítulo y llamadas a la acción.</Typography>
+                        </Surface>
+
+                        <Surface
+                            variant="secondary"
+                            className="p-4 cursor-pointer hover:border-[var(--color-primary)] border-2 border-transparent transition-all group"
+                            onClick={() => {
+                                setIsSelectingBlock(false);
+                                router.post(route('admin.landing-page.store'), {
+                                    module_namespace: 'Ecommerce',
+                                    block_type: 'ProductGrid'
+                                });
+                            }}
+                        >
+                            <Typography variant="h4" className="group-hover:text-[var(--color-primary)]">🛒 Catálogo de Tienda</Typography>
+                            <Typography variant="small" className="text-[var(--color-text-muted)]">Cuadrícula dinámica que muestra productos destacados del catálogo.</Typography>
+                        </Surface>
+                    </div>
+
+                    <div className="mt-8 flex justify-end">
+                        <SecondaryButton onClick={() => setIsSelectingBlock(false)}>Cancelar</SecondaryButton>
+                    </div>
+                </div>
             </Modal>
         </AuthenticatedLayout>
     );

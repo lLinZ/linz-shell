@@ -23,7 +23,14 @@ const Typography = React.forwardRef<HTMLElement, TypographyProps>(
         return (
             <Component
                 ref={ref}
-                className={cn(variants[variant], className)}
+                className={cn(
+                    // ESTA ES LA REGLA MAESTRA:
+                    // Por defecto, TODO texto agarra el color primario dinámico,
+                    // a menos que sea la variante 'muted'.
+                    variant !== "muted" && "text-[var(--color-text-primary)]",
+                    variants[variant],
+                    className
+                )}
                 {...props}
             />
         )

@@ -11,12 +11,30 @@ Route::get('/', function () {
         $q->orderBy('order');
     }])->first();
 
+    $blocks = $page ? $page->blocks : collect([]);
+
+    // Hydrate blocks with business logic data
+    $blocks = $blocks->map(function ($block) {
+        if ($block->block_type === 'ProductGrid') {
+            $limit = $block->payload_json['limit'] ?? 8;
+            $products = \App\Models\Product::where('is_active', true)
+                ->take($limit)
+                ->get();
+            
+            // Inject products into the payload for the frontend
+            $payload = $block->payload_json;
+            $payload['products'] = $products;
+            $block->payload_json = $payload;
+        }
+        return $block;
+    });
+
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
-        'blocks' => $page ? $page->blocks : [],
+        'blocks' => $blocks,
     ]);
 });
 
@@ -65,6 +83,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     // Page Builder (Modular SaaS Core)
     Route::get('/landing-page', [App\Http\Controllers\Admin\PageBuilderController::class, 'index'])->name('landing-page.index');
+    Route::post('/landing-page/blocks', [App\Http\Controllers\Admin\PageBuilderController::class, 'store'])->name('landing-page.store');
     Route::post('/landing-page/reorder', [App\Http\Controllers\Admin\PageBuilderController::class, 'reorder'])->name('landing-page.reorder');
     Route::patch('/landing-page/blocks/{block}', [App\Http\Controllers\Admin\PageBuilderController::class, 'updateBlock'])->name('landing-page.block.update');
     Route::delete('/landing-page/blocks/{block}', [App\Http\Controllers\Admin\PageBuilderController::class, 'destroy'])->name('landing-page.block.destroy');

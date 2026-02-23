@@ -24,11 +24,20 @@ class AdminProductController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'is_active' => 'boolean',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        Product::create($request->all());
+        $data = $request->all();
+        $data['slug'] = \Illuminate\Support\Str::slug($request->name);
 
-        return back()->with('success', 'Product created.');
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('products', 'public');
+            $data['image_url'] = '/storage/' . $path;
+        }
+
+        Product::create($data);
+
+        return back()->with('success', 'Producto creado correctamente.');
     }
 
     public function update(Request $request, Product $product)
@@ -38,11 +47,25 @@ class AdminProductController extends Controller
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'is_active' => 'boolean',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        $product->update($request->all());
+        $data = $request->all();
+        $data['slug'] = \Illuminate\Support\Str::slug($request->name);
 
-        return back()->with('success', 'Product updated.');
+        if ($request->hasFile('image')) {
+            // Delete old image if it exists and is local
+            if ($product->image_url && str_starts_with($product->image_url, '/storage/')) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete(str_replace('/storage/', '', $product->image_url));
+            }
+            
+            $path = $request->file('image')->store('products', 'public');
+            $data['image_url'] = '/storage/' . $path;
+        }
+
+        $product->update($data);
+
+        return back()->with('success', 'Producto actualizado correctamente.');
     }
 
     public function destroy(Product $product)

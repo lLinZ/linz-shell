@@ -60,7 +60,52 @@ class PageBuilderController extends Controller
     }
 
     /**
-     * Toggle block visibility or delete (optional based on needs, let's keep it simple for now).
+     * Add a new block to the page.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'module_namespace' => 'required|string',
+            'block_type' => 'required|string',
+        ]);
+
+        $page = Page::where('slug', 'welcome')->firstOrFail();
+
+        // Calculate next order
+        $lastOrder = PageBlock::where('page_id', $page->id)->max('order') ?? 0;
+
+        // Determine initial payload based on block type
+        $payload = [];
+        if ($request->block_type === 'Hero') {
+            $payload = [
+                'badge' => 'NUEVO',
+                'title' => 'Título de tu Hero',
+                'subtitle' => 'Subtítulo descriptivo',
+                'description' => 'Escribe aquí una descripción impactante para tu landing page.',
+                'primary_cta' => ['text' => 'Empezar', 'url' => '#'],
+                'secondary_cta' => ['text' => 'Saber más', 'url' => '#'],
+            ];
+        } elseif ($request->block_type === 'ProductGrid') {
+            $payload = [
+                'title' => 'Nuestros Productos',
+                'category' => 'all',
+                'limit' => 8,
+            ];
+        }
+
+        PageBlock::create([
+            'page_id' => $page->id,
+            'module_namespace' => $request->module_namespace,
+            'block_type' => $request->block_type,
+            'order' => $lastOrder + 1,
+            'payload_json' => $payload
+        ]);
+
+        return back()->with('success', 'Bloque añadido correctamente.');
+    }
+
+    /**
+     * Toggle block visibility or delete.
      */
     public function destroy(PageBlock $block)
     {
