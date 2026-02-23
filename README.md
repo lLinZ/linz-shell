@@ -1,59 +1,89 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Linz Shell - Enterprise Application Platform
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Linz Shell es una plataforma base (skeleton/shell) moderna y robusta para aplicaciones empresariales, construida sobre el ecosistema de **Laravel 12** y **React**. Está diseñada para ser modular, escalable y con un sistema de diseño propio y consistente.
 
-## About Laravel
+## 🚀 Tecnologías Principales
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Backend:** PHP 8.2+, Laravel 12, Laravel Reverb (WebSockets nativos), Laravel Sanctum (Auth).
+- **Frontend:** React 18, TypeScript, Inertia.js, Vite.
+- **Styling:** Tailwind CSS 4, Radix UI, Lucide Icons.
+- **Arquitectura:** Sistema de módulos dinámicos y sistema de diseño atómico.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## ✨ Características Destacadas
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 1. Sistema de Módulos
+La aplicación cuenta con un gestor de módulos que permite activar o desactivar funcionalidades de forma dinámica:
+- **Chat:** Sistema de mensajería en tiempo real con soporte para grupos, chats privados y reacciones.
+- **Carrito de Compras:** Integración completa para flujos de e-commerce.
+- **Inventario:** Gestión de stock y productos para administradores.
 
-## Learning Laravel
+### 2. Diseño Atómico (Linz Design System)
+Un sistema de diseño centralizado basado en componentes de React que aseguran la consistencia visual:
+- `<Surface />`: Contenedor base para paneles y tarjetas.
+- `<Typography />`: Jerarquía de textos estandarizada.
+- `<Button />`: Acciones consistentes.
+*(Consulta `DESIGN_SYSTEM.md` para más detalles)*.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 3. Panel de Administración
+Incluye herramientas avanzadas para la gestión del sistema:
+- Control de visibilidad de módulos.
+- Editor de Landing Page basado en secciones.
+- Configuración global del sistema.
+- Gestión de productos, menús e inventarios.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 4. Tiempo Real
+Gracias a **Laravel Reverb**, la aplicación soporta funcionalidades en tiempo real (como el chat) de manera nativa sin dependencias externas como Pusher.
 
-## Laravel Sponsors
+## 🛠️ Instalación y Configuración
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Sigue estos pasos para poner en marcha el proyecto localmente:
 
-### Premium Partners
+1. **Clonar el repositorio:**
+   ```bash
+   git clone https://github.com/lLinZ/linz-shell.git
+   cd linz-shell
+   ```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+2. **Instalar dependencias de PHP:**
+   ```bash
+   composer install
+   ```
 
-## Contributing
+3. **Instalar dependencias de JS:**
+   ```bash
+   npm install
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+4. **Configurar el entorno:**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+   *Configura tus credenciales de base de datos en el archivo `.env`.*
 
-## Code of Conduct
+5. **Ejecutar migraciones y seeders:**
+   ```bash
+   php artisan migrate --seed
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+6. **Iniciar el servidor de desarrollo:**
+   Para ejecutar todo simultáneamente (Servidor, Vite, Colas, Reverb):
+   ```bash
+   npm run dev
+   # O usando el script definido en composer.json:
+   composer dev
+   ```
 
-## Security Vulnerabilities
+## 📂 Estructura del Proyecto
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- `app/Http/Controllers`: Lógica de negocio y controladores.
+- `resources/js/Pages`: Componentes de página de React.
+- `resources/js/Components/ui`: Componentes del sistema de diseño core.
+- `routes/web.php`: Definiciones de rutas y middleware de módulos.
 
-## License
+## 🤝 Contribución
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Para añadir nuevas funcionalidades o variantes visuales, por favor sigue los principios definidos en el `DESIGN_SYSTEM.md`. ¡Mantengamos el código limpio y consistente!
+
+---
+Desarrollado con ❤️ por el equipo de Linz.
