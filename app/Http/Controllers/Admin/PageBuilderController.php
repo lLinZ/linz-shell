@@ -13,15 +13,11 @@ class PageBuilderController extends Controller
     /**
      * List blocks for the 'welcome' page.
      */
-    public function index()
+    public function index(Page $page)
     {
-        $page = Page::where('slug', 'welcome')->with(['blocks' => function ($q) {
-            $q->orderBy('order');
-        }])->firstOrFail();
-
         return Inertia::render('Admin/LandingBuilder/Index', [
             'page' => $page,
-            'blocks' => $page->blocks,
+            'blocks' => $page->blocks()->orderBy('order')->get(),
         ]);
     }
 
@@ -62,14 +58,12 @@ class PageBuilderController extends Controller
     /**
      * Add a new block to the page.
      */
-    public function store(Request $request)
+    public function store(Request $request, Page $page)
     {
         $request->validate([
             'module_namespace' => 'required|string',
             'block_type' => 'required|string',
         ]);
-
-        $page = Page::where('slug', 'welcome')->firstOrFail();
 
         // Calculate next order
         $lastOrder = PageBlock::where('page_id', $page->id)->max('order') ?? 0;
@@ -90,6 +84,39 @@ class PageBuilderController extends Controller
                 'title' => 'Nuestros Productos',
                 'category' => 'all',
                 'limit' => 8,
+            ];
+        } elseif ($request->block_type === 'Features') {
+            $payload = [
+                'title' => 'Nuestras Ventajas',
+                'subtitle' => 'Descubre por qué somos la mejor opción.',
+                'features' => [
+                    ['title' => 'Rapidez', 'description' => 'Servicio inmediato.', 'icon' => 'Zap'],
+                    ['title' => 'Seguridad', 'description' => 'Garantía total.', 'icon' => 'ShieldCheck'],
+                ],
+            ];
+        } elseif ($request->block_type === 'InteractiveHero') {
+            $payload = [
+                'badge' => 'EXPERIENCIA PREMIUM',
+                'title' => 'Crea Momentos Memorables',
+                'description' => 'Efectos parallax, videos de fondo y carruseles fluidos para captar la atención de tus clientes desde el primer segundo.',
+                'primary_cta' => ['text' => 'Comenzar Ahora', 'url' => '#'],
+                'slides' => [
+                    ['image' => 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=2070'],
+                    ['image' => 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=2070'],
+                ],
+                'styles' => [
+                    'parallax' => true,
+                    'overlay_opacity' => 0.6
+                ]
+            ];
+        } elseif ($request->block_type === 'Footer') {
+            $payload = [
+                'company_name' => 'Linz Shell',
+                'description' => 'Plataforma para profesionales.',
+                'columns' => [
+                    ['title' => 'Enlaces', 'links' => [['label' => 'Inicio', 'url' => '/']]],
+                ],
+                'copyright' => '© 2026 Linz Shell.',
             ];
         }
 

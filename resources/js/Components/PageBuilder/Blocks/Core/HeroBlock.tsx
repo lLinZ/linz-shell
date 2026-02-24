@@ -11,8 +11,8 @@ import { cn } from '@/lib/utils';
  * Uses only system primitives for styling and layout.
  */
 const HeroBlock: React.FC<BlockProps> = ({ payload }) => {
-    const hasBgImage = !!payload.background_image;
-    const bgColor = payload.background_color || 'transparent';
+    // Check if there is a background image in the standard styles object or legacy top-level
+    const hasBgImage = !!payload.styles?.background_image || !!payload.background_image;
 
     return (
         <Surface
@@ -22,19 +22,9 @@ const HeroBlock: React.FC<BlockProps> = ({ payload }) => {
             border={false}
             shadow="none"
             className={cn(
-                "relative pt-40 pb-20 lg:pt-56 lg:pb-32 overflow-hidden flex flex-col items-center justify-center text-center px-4 min-h-[70vh]",
-                hasBgImage ? "bg-cover bg-center" : ""
+                "relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden flex flex-col items-center justify-center text-center px-4 min-h-[60vh]",
             )}
-            style={{
-                backgroundImage: hasBgImage ? `url(${payload.background_image})` : undefined,
-                backgroundColor: !hasBgImage ? bgColor : undefined
-            }}
         >
-            {/* Overlay for readability when background image is present */}
-            {hasBgImage && (
-                <div className="absolute inset-0 bg-black/50 z-0" />
-            )}
-
             <div className="relative z-10 flex flex-col items-center max-w-5xl">
                 {/* Badge */}
                 {payload.badge && (
@@ -101,7 +91,7 @@ const HeroBlock: React.FC<BlockProps> = ({ payload }) => {
                 </div>
             </div>
 
-            {/* Decorative Pulse (Primitive based background) - only visible if NO background image */}
+            {/* Decorative Pulse - only if NO background image */}
             {!hasBgImage && (
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none opacity-20 dark:opacity-40 -z-10">
                     <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[var(--color-primary)] rounded-full blur-[120px] animate-pulse"></div>

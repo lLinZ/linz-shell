@@ -5,6 +5,9 @@ import { generateColorPalette, applyPaletteToCSSVariables } from '@/lib/colorUti
 import { DesktopSidebar } from './Partials/DesktopSidebar';
 import { MobileNav } from './Partials/AuthenticatedMobileNav';
 import { cn } from '@/lib/utils';
+import BrandingHeader from '@/Components/BrandingHeader';
+import Navbar from '@/Components/Navbar';
+import FloatingChat from '@/Components/Chat/FloatingChat';
 
 export default function Authenticated({
     header,
@@ -12,6 +15,7 @@ export default function Authenticated({
     fullWidth = false,
 }: PropsWithChildren<{ header?: ReactNode, fullWidth?: boolean }>) {
     const user = usePage().props.auth.user as User;
+    const isClient = user.role === 'client';
     // @ts-ignore
     const { menu } = usePage<PageProps>().props;
     const [showingMobileMenu, setShowingMobileMenu] = useState(false);
@@ -29,25 +33,35 @@ export default function Authenticated({
 
     return (
         <div className={cn(
-            "bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] flex font-sans overflow-hidden",
+            "bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] flex flex-col font-sans relative",
+            !isClient && "md:flex-row overflow-hidden",
             fullWidth ? "h-screen" : "min-h-screen"
         )}>
-            {/* Desktop Sidebar */}
-            <DesktopSidebar user={user} menu={menu} />
+            <BrandingHeader />
+
+            {/* Conditional Navigation: Dashboard Sidebar vs Public Navbar */}
+            {!isClient ? (
+                <DesktopSidebar user={user} menu={menu} />
+            ) : (
+                <Navbar />
+            )}
 
             {/* Main Content Area */}
             <div className={cn(
-                "flex-1 flex flex-col md:ml-64 bg-[var(--color-bg-primary)]",
+                "flex-1 flex flex-col bg-[var(--color-bg-primary)]",
+                !isClient && "md:ml-64",
                 fullWidth ? "h-screen overflow-hidden" : "min-h-screen"
             )}>
 
-                {/* Mobile Navigation */}
-                <MobileNav
-                    user={user}
-                    menu={menu}
-                    showingDropdown={showingMobileMenu}
-                    setShowingDropdown={setShowingMobileMenu}
-                />
+                {/* Mobile Navigation (Admin only) */}
+                {!isClient && (
+                    <MobileNav
+                        user={user}
+                        menu={menu}
+                        showingDropdown={showingMobileMenu}
+                        setShowingDropdown={setShowingMobileMenu}
+                    />
+                )}
 
                 {/* Page Header (Only if provided) */}
                 {header && (
@@ -71,6 +85,7 @@ export default function Authenticated({
                     </div>
                 </main>
             </div>
+            <FloatingChat />
         </div>
     );
 }

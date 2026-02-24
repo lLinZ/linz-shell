@@ -38,7 +38,14 @@ export const ChatSidebar = ({
     filteredConversations
 }: ChatSidebarProps) => {
 
-    const { groups, onlineUsers, offlineUsers } = useSidebarUsers(conversations, allUsers, onlineUserIds);
+    const {
+        groups,
+        teammatesOnline,
+        teammatesOffline,
+        clientsOnline,
+        clientsOffline,
+        archived
+    } = useSidebarUsers(conversations, allUsers, onlineUserIds);
 
     const handleItemClick = (user: any) => {
         if (user.conversation_id) {
@@ -84,7 +91,7 @@ export const ChatSidebar = ({
             <div className="flex-1 overflow-y-auto custom-scrollbar">
                 {!searchQuery ? (
                     <>
-                        <SidebarSection title="Grupos">
+                        <SidebarSection title="Grupos" defaultOpen={true}>
                             {groups.map((group: any) => (
                                 <SidebarItem
                                     key={`group_${group.id}`}
@@ -95,26 +102,19 @@ export const ChatSidebar = ({
                             ))}
                         </SidebarSection>
 
-                        <SidebarSection
-                            title="En línea"
-                            count={onlineUsers.length}
-                            titleColor="text-green-600 dark:text-green-400"
-                        >
-                            {onlineUsers.map((user: any) => (
+                        <SidebarSection title="Clientes" count={clientsOnline.length + clientsOffline.length} defaultOpen={true}>
+                            {clientsOnline.map((user: any) => (
                                 <SidebarItem
-                                    key={user.id}
+                                    key={`client_online_${user.id}`}
                                     user={user}
                                     status="online"
                                     isActive={activeConversationId === user.conversation_id}
                                     onClick={() => handleItemClick(user)}
                                 />
                             ))}
-                        </SidebarSection>
-
-                        <SidebarSection title="Desconectado" count={offlineUsers.length}>
-                            {offlineUsers.map((user: any) => (
+                            {clientsOffline.map((user: any) => (
                                 <SidebarItem
-                                    key={user.id}
+                                    key={`client_offline_${user.id}`}
                                     user={user}
                                     status="offline"
                                     isActive={activeConversationId === user.conversation_id}
@@ -122,23 +122,61 @@ export const ChatSidebar = ({
                                 />
                             ))}
                         </SidebarSection>
+
+                        <SidebarSection title="Equipo" count={teammatesOnline.length + teammatesOffline.length} defaultOpen={false}>
+                            {teammatesOnline.map((user: any) => (
+                                <SidebarItem
+                                    key={`teammate_online_${user.id}`}
+                                    user={user}
+                                    status="online"
+                                    isActive={activeConversationId === user.conversation_id}
+                                    onClick={() => handleItemClick(user)}
+                                />
+                            ))}
+                            {teammatesOffline.map((user: any) => (
+                                <SidebarItem
+                                    key={`teammate_offline_${user.id}`}
+                                    user={user}
+                                    status="offline"
+                                    isActive={activeConversationId === user.conversation_id}
+                                    onClick={() => handleItemClick(user)}
+                                />
+                            ))}
+                        </SidebarSection>
+
+                        {archived.length > 0 && (
+                            <SidebarSection title="Archivados" count={archived.length} defaultOpen={false}>
+                                {archived.map((user: any) => (
+                                    <SidebarItem
+                                        key={`archived_${user.id}`}
+                                        user={user}
+                                        status={user.is_group ? null : (onlineUserIds.some(oid => Number(oid) === Number(user.id)) ? "online" : "offline")}
+                                        isActive={activeConversationId === user.conversation_id}
+                                        onClick={() => handleItemClick(user)}
+                                    />
+                                ))}
+                            </SidebarSection>
+                        )}
                     </>
                 ) : (
                     <>
                         <SidebarSection title="Conversaciones">
-                            {filteredConversations.map((conv: any) => (
-                                <SidebarItem
-                                    key={`conv_${conv.id}`}
-                                    user={{
-                                        ...conv,
-                                        conversation_id: conv.id,
-                                        is_group: !conv.is_private
-                                    }}
-                                    isActive={activeConversationId === conv.id}
-                                    status={conv.is_private ? (onlineUserIds.includes(conv.other_user_id) ? "online" : "offline") : null}
-                                    onClick={() => onSelectConversation(conv.id)}
-                                />
-                            ))}
+                            {filteredConversations.map((conv: any) => {
+                                const isOnline = conv.is_private && onlineUserIds.some(oid => Number(oid) === Number(conv.other_user_id));
+                                return (
+                                    <SidebarItem
+                                        key={`conv_${conv.id}`}
+                                        user={{
+                                            ...conv,
+                                            conversation_id: conv.id,
+                                            is_group: !conv.is_private
+                                        }}
+                                        isActive={activeConversationId === conv.id}
+                                        status={conv.is_private ? (isOnline ? "online" : "offline") : null}
+                                        onClick={() => onSelectConversation(conv.id)}
+                                    />
+                                );
+                            })}
                         </SidebarSection>
 
                         <SidebarSection title="Otros Usuarios">

@@ -16,7 +16,7 @@ class AdminMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if (! $request->user() || ! $request->user()->isAdmin()) {
-            abort(403, 'Unauthorized action.');
+            return redirect('/')->with('error', 'No tienes permisos para acceder a esta sección.');
         }
 
         return $next($request);

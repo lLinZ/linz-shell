@@ -13,6 +13,7 @@ interface SidebarItemProps {
         conversation_id?: number | null
         unread_count?: number
         is_group?: boolean
+        role?: string
     }
     isActive?: boolean
     status?: "online" | "offline" | null
@@ -38,9 +39,16 @@ export const SidebarItem = ({ user, isActive, status, onClick }: SidebarItemProp
             />
             <div className="ml-3 flex-1 overflow-hidden">
                 <div className="flex justify-between items-center">
-                    <Typography variant="small" className="font-semibold truncate">
-                        {user.name}
-                    </Typography>
+                    <div className="flex items-center gap-2 overflow-hidden flex-1">
+                        <Typography variant="small" className="font-semibold truncate">
+                            {user.name}
+                        </Typography>
+                        {user.role === 'client' && (
+                            <Badge variant="outline" className="border-[var(--color-primary)] text-[var(--color-primary)] text-[9px] py-0 px-1 h-4 flex items-center shrink-0">
+                                Cliente
+                            </Badge>
+                        )}
+                    </div>
                     {(user.unread_count || 0) > 0 && (
                         <Badge variant="danger">
                             {user.unread_count}
@@ -48,7 +56,7 @@ export const SidebarItem = ({ user, isActive, status, onClick }: SidebarItemProp
                     )}
                 </div>
                 <Typography variant="muted" className={cn(
-                    "text-xs truncate",
+                    "text-xs truncate text-left",
                     status === "online" && "text-green-600 dark:text-green-400"
                 )}>
                     {user.is_group ? "Grupo" : status === "online" ? "En línea" : "Desconectado"}

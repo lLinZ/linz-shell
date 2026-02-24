@@ -60,7 +60,12 @@ export default function ChatWindow({ conversation, currentUser, onUpdate, onBack
             />
 
             <MessageList
-                messages={messages}
+                messages={messages.filter(m => {
+                    if (currentUser.role === 'client' && m.body.startsWith("El cliente está consultando desde:")) {
+                        return false;
+                    }
+                    return true;
+                })}
                 currentUser={currentUser}
                 loading={loading}
                 loadingMore={loadingMore}

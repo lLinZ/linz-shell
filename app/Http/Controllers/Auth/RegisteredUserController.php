@@ -40,6 +40,8 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'client',
+            'avatar_color' => 'hsl(' . rand(0, 360) . ', 70%, 50%)',
         ]);
 
         event(new Registered($user));

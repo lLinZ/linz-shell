@@ -9,6 +9,7 @@ import Avatar from "@/Components/ui/Avatar"
 import { useParticipantsManagement } from "@/Hooks/useParticipantsManagement"
 import { ParticipantItem } from "./ParticipantItem"
 import { Button } from "@/Components/ui/button"
+import { useChat } from "@/Hooks/useChat"
 
 interface ParticipantsModalProps {
     isOpen: boolean
@@ -18,6 +19,7 @@ interface ParticipantsModalProps {
     allUsers: any[]
     onlineUsers: any[]
     refreshUsers: () => void
+    onArchive?: (isArchived: boolean) => void
 }
 
 export const ParticipantsModal = ({
@@ -27,7 +29,8 @@ export const ParticipantsModal = ({
     currentUser,
     allUsers,
     onlineUsers,
-    refreshUsers
+    refreshUsers,
+    onArchive
 }: ParticipantsModalProps) => {
     const {
         searchUserQuery,
@@ -37,6 +40,29 @@ export const ParticipantsModal = ({
         addUser,
         removeUser
     } = useParticipantsManagement(conversation.id, refreshUsers);
+
+    const [isArchiving, setIsArchiving] = React.useState(false);
+
+    // We use the useChat hook to get access to archiveChat. 
+    // In a real app we might pass this down from the parent to avoid double subscription,
+    // but for simplicity here we just use the hook.
+    const { archiveChat } = useChat(conversation.id, currentUser.id);
+
+    const handleArchiveToggle = async () => {
+        const currentlyArchived = !!conversation.is_archived;
+        if (!confirm(currentlyArchived ? "¿Quieres desarchivar este chat?" : "¿Quieres archivar este chat? No aparecerá en tu lista principal.")) return;
+
+        setIsArchiving(true);
+        try {
+            await archiveChat(!currentlyArchived);
+            if (onArchive) onArchive(!currentlyArchived);
+            onClose();
+        } catch (e) {
+            alert("Error al procesar la solicitud");
+        } finally {
+            setIsArchiving(false);
+        }
+    };
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
@@ -131,6 +157,18 @@ export const ParticipantsModal = ({
                                                 onRemove={removeUser}
                                             />
                                         ))}
+                                    </div>
+
+                                    <div className="mt-8 pt-4 border-t border-[var(--color-border)]">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="w-full justify-center text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-900/10 border-amber-200"
+                                            onClick={handleArchiveToggle}
+                                            disabled={isArchiving}
+                                        >
+                                            {conversation.is_archived ? "Desarchivar Conversación" : "Archivar Conversación"}
+                                        </Button>
                                     </div>
                                 </Surface>
                             </DialogPanel>

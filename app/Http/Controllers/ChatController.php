@@ -20,13 +20,15 @@ class ChatController extends Controller
             ->with(['users']) // Eager load users to find the 'other' person
             ->get()
             ->map(function ($conversation) use ($user) {
+                $conversation->is_archived = (bool) $conversation->pivot->is_archived;
+                
                 if ($conversation->is_private) {
-                    $otherUser = $conversation->users->firstWhere('id', '!==', $user->id);
+                    $otherUser = $conversation->users->firstWhere('id', '!=', $user->id);
                     if ($otherUser) {
                         $conversation->name = $otherUser->name;
-                        // pass other user info if needed
                         $conversation->avatar_color = $otherUser->avatar_color;
                         $conversation->other_user_id = $otherUser->id;
+                        $conversation->other_user_role = $otherUser->role;
                     }
                 }
                 return $conversation;
@@ -35,7 +37,7 @@ class ChatController extends Controller
         return Inertia::render('Chat/Index', [
             'conversations' => $conversations,
             'allUsers' => \App\Models\User::where('id', '!=', $user->id)
-                ->select('id', 'name', 'email', 'avatar_color')
+                ->select('id', 'name', 'email', 'avatar_color', 'role')
                 ->get(),
         ]);
     }
@@ -317,5 +319,75 @@ class ChatController extends Controller
         $conversation->users()->attach(Auth::id());
 
         return response()->json($conversation);
+    }
+
+    /**
+     * Start or get existing private chat with an admin.
+     * Optionally sends a system message with context (like current URL).
+     */
+    public function chatWithAdmin(Request $request, \App\Actions\Chat\SendMessage $sendMessageAction)
+    {
+        $authId = Auth::id();
+        
+        // Find the first admin or master
+        $admin = \App\Models\User::whereIn('role', ['admin', 'master'])
+            ->where('id', '!=', $authId)
+            ->first();
+
+        if (!$admin) {
+            return response()->json(['error' => 'No administrators available'], 404);
+        }
+
+        $targetId = $admin->id;
+
+        // Check if private conversation exists
+        $conversation = \App\Models\Conversation::where('is_private', true)
+            ->whereHas('users', function ($q) use ($authId) {
+                $q->where('user_id', $authId);
+            })
+            ->whereHas('users', function ($q) use ($targetId) {
+                $q->where('user_id', $targetId);
+            })
+            ->first();
+
+        if (!$conversation) {
+            $conversation = \App\Models\Conversation::create([
+                'name' => 'Support Chat',
+                'is_private' => true,
+            ]);
+            $conversation->users()->attach([$authId, $targetId]);
+        }
+
+        // If context URL provided, send as system message
+        $currentUrl = $request->input('current_url');
+        if ($currentUrl) {
+            $sendMessageAction->handle(
+                Auth::user(),
+                $conversation,
+                "El cliente está consultando desde: " . $currentUrl
+            );
+        }
+
+        // Add 'other' user info for frontend
+        $conversation->name = $admin->name;
+        $conversation->avatar_color = $admin->avatar_color;
+        $conversation->other_user_id = $admin->id;
+
+        return response()->json($conversation);
+    }
+
+    /**
+     * Archive or unarchive a conversation for the authenticated user.
+     */
+    public function archive(Request $request, \App\Models\Conversation $conversation)
+    {
+        $user = Auth::user();
+        $isArchived = $request->input('archive', true);
+
+        $user->conversations()->updateExistingPivot($conversation->id, [
+            'is_archived' => $isArchived
+        ]);
+
+        return response()->json(['message' => $isArchived ? 'Chat archivado' : 'Chat desarchivado']);
     }
 }

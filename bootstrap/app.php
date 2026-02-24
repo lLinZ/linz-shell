@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'module' => \App\Http\Middleware\ModuleEnabledMiddleware::class,
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'master' => \App\Http\Middleware\EnsureIsMaster::class,
         ]);
 
         //

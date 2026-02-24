@@ -19,19 +19,27 @@ class PageSeeder extends Seeder
         // Limpiar bloques existentes para evitar duplicados en la prueba
         $page->blocks()->delete();
 
-        // 2. Insertar Hero Block
+        // 2. Insertar InteractiveHero Block (Premium)
         PageBlock::create([
             'page_id' => $page->id,
             'module_namespace' => 'Core',
-            'block_type' => 'Hero',
+            'block_type' => 'InteractiveHero',
             'order' => 1,
             'payload_json' => [
-                'badge' => 'Prueba de Vida - SaaS Core',
-                'title' => '¿Necesitas una mano?',
-                'subtitle' => 'Lanza un Trabajo.',
-                'description' => 'Conecta con los mejores profesionales técnicos de forma rápida, segura y sin complicaciones. Plomería, electricidad, carpintería y mucho más a un clic.',
-                'primary_cta' => ['text' => 'Busco un Técnico 👤', 'url' => '/register?role=client'],
-                'secondary_cta' => ['text' => 'Soy Profesional 👷', 'url' => '/register?role=technician']
+                'badge' => 'Experiencia Premium',
+                'title' => 'Crea Momentos Memorables',
+                'description' => 'Efectos parallax, videos de fondo y carruseles fluidos para captar la atención de tus clientes desde el primer segundo.',
+                'primary_cta' => ['text' => 'Comenzar Ahora', 'url' => '/register'],
+                'secondary_cta' => ['text' => 'Ver Tienda', 'url' => '/shop'],
+                'slides' => [
+                    ['image' => 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=2000'],
+                    ['image' => 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=2000'],
+                    ['image' => 'https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&q=80&w=2000'],
+                ],
+                'styles' => [
+                    'parallax' => true,
+                    'overlay_opacity' => 0.4
+                ]
             ]
         ]);
     }

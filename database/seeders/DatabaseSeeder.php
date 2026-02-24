@@ -26,7 +26,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ModuleSeeder::class,
             InventoryModuleSeeder::class,
-            LandingPageSeeder::class,
+            PageSeeder::class,
+            SiteSettingSeeder::class,
             ProductSeeder::class,
             MenuItemSeeder::class,
             ChatSeeder::class,

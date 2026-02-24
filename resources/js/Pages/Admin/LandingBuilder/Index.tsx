@@ -10,7 +10,9 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import SecondaryButton from '@/Components/SecondaryButton';
 import TextAreaCustom from '@/Components/TextAreaCustom';
-import { ChevronUp, ChevronDown, Edit3, Trash2, Layout, Save, X } from 'lucide-react';
+import { ChevronUp, ChevronDown, Edit3, Trash2, Layout, Save, X, Braces } from 'lucide-react';
+import CodeMirror from '@uiw/react-codemirror';
+import { json } from '@codemirror/lang-json';
 
 interface PageBlock {
     id: number;
@@ -34,7 +36,9 @@ interface Props {
 export default function Index({ page, blocks }: Props) {
     const [editingBlock, setEditingBlock] = useState<PageBlock | null>(null);
     const [isSelectingBlock, setIsSelectingBlock] = useState(false);
-    const { data, setData, patch, processing, reset } = useForm({
+    const [jsonBuffer, setJsonBuffer] = useState<Record<string, string>>({});
+
+    const { data, setData, patch, processing, reset, transform } = useForm({
         payload_json: {} as any
     });
 
@@ -58,16 +62,47 @@ export default function Index({ page, blocks }: Props) {
     // Edit logic
     const handleEdit = (block: PageBlock) => {
         setEditingBlock(block);
-        setData('payload_json', JSON.parse(JSON.stringify(block.payload_json)));
+        const payload = JSON.parse(JSON.stringify(block.payload_json));
+        setData('payload_json', payload);
+
+        // Initialize buffer for complex objects
+        const buffer: Record<string, string> = {};
+        Object.entries(payload).forEach(([key, val]) => {
+            if (typeof val === 'object' && val !== null) {
+                buffer[key] = JSON.stringify(val, null, 2);
+            }
+        });
+        setJsonBuffer(buffer);
     };
 
     const handleUpdate = (e: React.FormEvent) => {
         e.preventDefault();
         if (!editingBlock) return;
 
+        const finalPayload = { ...data.payload_json };
+        let hasError = false;
+
+        // Validate and parse from buffer
+        Object.keys(jsonBuffer).forEach(key => {
+            try {
+                finalPayload[key] = JSON.parse(jsonBuffer[key]);
+            } catch (err) {
+                alert(`Error de sintaxis en el campo "${key}": Asegúrate de que el JSON sea válido.`);
+                hasError = true;
+            }
+        });
+
+        if (hasError) return;
+
+        transform((data) => ({
+            ...data,
+            payload_json: finalPayload
+        }));
+
         patch(route('admin.landing-page.block.update', editingBlock.id), {
             onSuccess: () => {
                 setEditingBlock(null);
+                setJsonBuffer({});
                 reset();
             }
         });
@@ -161,8 +196,9 @@ export default function Index({ page, blocks }: Props) {
 
             {/* Panel de Edición (Modal - Portalled) */}
             <Modal show={!!editingBlock} onClose={() => setEditingBlock(null)} maxWidth="2xl">
-                <form onSubmit={handleUpdate} className="p-6">
-                    <div className="flex justify-between items-center mb-6 border-b border-[var(--color-border)] pb-4">
+                <form onSubmit={handleUpdate} className="flex flex-col h-full max-h-[90vh]">
+                    {/* Header - Sticky */}
+                    <div className="sticky top-0 z-10 bg-[var(--color-bg-primary)] p-6 border-b border-[var(--color-border)] flex justify-between items-center">
                         <Typography variant="h3">
                             Editar {editingBlock?.block_type}
                         </Typography>
@@ -176,40 +212,61 @@ export default function Index({ page, blocks }: Props) {
                         </Button>
                     </div>
 
-                    <div className="space-y-6">
+                    {/* Scrollable Content */}
+                    <div className="flex-1 overflow-y-auto p-6 space-y-6">
                         {editingBlock && Object.keys(data.payload_json).map((key) => {
                             const val = data.payload_json[key];
+                            const isComplex = typeof val === 'object' && val !== null;
 
                             return (
-                                <div key={key}>
-                                    <InputLabel value={key.replace(/_/g, ' ').toUpperCase()} />
+                                <div key={`field-${editingBlock.id}-${key}`}>
+                                    <div className="flex justify-between items-center mb-1">
+                                        <InputLabel value={key.replace(/_/g, ' ').toUpperCase()} />
+                                        {isComplex && (
+                                            <Typography variant="small" className="text-[10px] text-[var(--color-primary)] font-bold flex items-center gap-1">
+                                                <Braces className="w-3 h-3" /> JSON EDITOR
+                                            </Typography>
+                                        )}
+                                    </div>
 
-                                    {typeof val === 'string' && val.length > 50 ? (
-                                        <TextAreaCustom
-                                            className="mt-1 block w-full"
-                                            value={val}
-                                            onChange={(e) => setData('payload_json', { ...data.payload_json, [key]: e.target.value })}
-                                        />
-                                    ) : (
-                                        <TextInput
-                                            type="text"
-                                            className="mt-1 block w-full"
-                                            value={typeof val === 'object' ? JSON.stringify(val) : val}
-                                            onChange={(e) => {
-                                                let finalVal: any = e.target.value;
-                                                if (typeof val === 'object' && val !== null) {
-                                                    try { finalVal = JSON.parse(e.target.value); } catch (e) { }
-                                                }
-                                                setData('payload_json', { ...data.payload_json, [key]: finalVal });
+                                    {isComplex ? (
+                                        <CodeMirror
+                                            key={`editor-${editingBlock.id}-${key}`}
+                                            value={jsonBuffer[key] || JSON.stringify(val, null, 2)}
+                                            height="200px"
+                                            theme="dark"
+                                            extensions={[json()]}
+                                            className="border border-[var(--color-border)] rounded-xl overflow-hidden mt-1 shadow-inner"
+                                            onChange={(value) => {
+                                                setJsonBuffer(prev => ({ ...prev, [key]: value }));
                                             }}
                                         />
+                                    ) : (
+                                        <>
+                                            {typeof val === 'string' && val.length > 50 ? (
+                                                <TextAreaCustom
+                                                    className="mt-1 block w-full"
+                                                    value={val}
+                                                    onChange={(e) => setData('payload_json', { ...data.payload_json, [key]: e.target.value })}
+                                                    rows={3}
+                                                />
+                                            ) : (
+                                                <TextInput
+                                                    type="text"
+                                                    className="mt-1 block w-full"
+                                                    value={val}
+                                                    onChange={(e) => setData('payload_json', { ...data.payload_json, [key]: e.target.value })}
+                                                />
+                                            )}
+                                        </>
                                     )}
                                 </div>
                             );
                         })}
                     </div>
 
-                    <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-[var(--color-border)]">
+                    {/* Footer - Sticky */}
+                    <div className="sticky bottom-0 z-10 bg-[var(--color-bg-primary)] p-6 border-t border-[var(--color-border)] flex justify-end gap-3">
                         <SecondaryButton onClick={() => setEditingBlock(null)}>
                             Cancelar
                         </SecondaryButton>
@@ -236,7 +293,7 @@ export default function Index({ page, blocks }: Props) {
                             className="p-4 cursor-pointer hover:border-[var(--color-primary)] border-2 border-transparent transition-all group"
                             onClick={() => {
                                 setIsSelectingBlock(false);
-                                router.post(route('admin.landing-page.store'), {
+                                router.post(route('admin.landing-page.store', page.id), {
                                     module_namespace: 'Core',
                                     block_type: 'Hero'
                                 });
@@ -251,7 +308,73 @@ export default function Index({ page, blocks }: Props) {
                             className="p-4 cursor-pointer hover:border-[var(--color-primary)] border-2 border-transparent transition-all group"
                             onClick={() => {
                                 setIsSelectingBlock(false);
-                                router.post(route('admin.landing-page.store'), {
+                                router.post(route('admin.landing-page.store', page.id), {
+                                    module_namespace: 'Core',
+                                    block_type: 'InteractiveHero'
+                                });
+                            }}
+                        >
+                            <Typography variant="h4" className="group-hover:text-[var(--color-primary)] font-black uppercase text-sm tracking-widest flex items-center">
+                                <span className="bg-gradient-to-r from-purple-500 to-blue-500 text-white p-1 rounded mr-2 text-[10px]">PREMIUM</span>
+                                🎞️ Interactive Hero
+                            </Typography>
+                            <Typography variant="small" className="text-[var(--color-text-muted)]">Bloque inmersivo con soporte para Videos, Carruseles y efectos Parallax.</Typography>
+                        </Surface>
+
+                        <Surface
+                            variant="secondary"
+                            className="p-4 cursor-pointer hover:border-[var(--color-primary)] border-2 border-transparent transition-all group"
+                            onClick={() => {
+                                setIsSelectingBlock(false);
+                                router.post(route('admin.landing-page.store', page.id), {
+                                    module_namespace: 'Core',
+                                    block_type: 'Features',
+                                    payload_json: {
+                                        title: 'Nuestras Ventajas',
+                                        subtitle: 'Descubre por qué somos la mejor opción para tus necesidades técnicas.',
+                                        features: [
+                                            { title: 'Soporte 24/7', description: 'Atención personalizada en cualquier momento.', icon: 'Zap' },
+                                            { title: 'Garantía Total', description: 'Todos nuestros trabajos están garantizados.', icon: 'ShieldCheck' },
+                                            { title: 'Expertos Reales', description: 'Profesionales verificados con años de experiencia.', icon: 'Users' }
+                                        ]
+                                    }
+                                });
+                            }}
+                        >
+                            <Typography variant="h4" className="group-hover:text-[var(--color-primary)]">✨ Características (Grid)</Typography>
+                            <Typography variant="small" className="text-[var(--color-text-muted)]">Cuadrícula de beneficios con iconos personalizables.</Typography>
+                        </Surface>
+
+                        <Surface
+                            variant="secondary"
+                            className="p-4 cursor-pointer hover:border-[var(--color-primary)] border-2 border-transparent transition-all group"
+                            onClick={() => {
+                                setIsSelectingBlock(false);
+                                router.post(route('admin.landing-page.store', page.id), {
+                                    module_namespace: 'Core',
+                                    block_type: 'Footer',
+                                    payload_json: {
+                                        company_name: 'Linz Shell',
+                                        description: 'La plataforma definitiva para profesionales.',
+                                        columns: [
+                                            { title: 'Producto', links: [{ label: 'Precios', url: '#' }, { label: 'FAQ', url: '#' }] },
+                                            { title: 'Legales', links: [{ label: 'Privacidad', url: '#' }, { label: 'Términos', url: '#' }] }
+                                        ],
+                                        copyright: '© 2026 Linz Shell. Todos los derechos reservados.'
+                                    }
+                                });
+                            }}
+                        >
+                            <Typography variant="h4" className="group-hover:text-[var(--color-primary)]">🧱 Pie de Página (Footer)</Typography>
+                            <Typography variant="small" className="text-[var(--color-text-muted)]">Bloque final con enlaces, copyright e información de marca.</Typography>
+                        </Surface>
+
+                        <Surface
+                            variant="secondary"
+                            className="p-4 cursor-pointer hover:border-[var(--color-primary)] border-2 border-transparent transition-all group"
+                            onClick={() => {
+                                setIsSelectingBlock(false);
+                                router.post(route('admin.landing-page.store', page.id), {
                                     module_namespace: 'Ecommerce',
                                     block_type: 'ProductGrid'
                                 });

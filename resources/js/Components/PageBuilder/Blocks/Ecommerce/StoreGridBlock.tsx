@@ -5,12 +5,15 @@ import { Button } from '@/Components/ui/button';
 import { blockRegistry, BlockProps } from '../../BlockRegistry';
 import { ShoppingCart } from 'lucide-react';
 
+import { useCartStore } from '@/Stores/useCartStore';
+
 /**
  * StoreGridBlock component for the 'Ecommerce' namespace.
  * Renders a grid of products hydrated from the backend.
  */
 const StoreGridBlock: React.FC<BlockProps> = ({ payload }) => {
     const products = payload.products || [];
+    const addItem = useCartStore((state: any) => state.addItem);
 
     // Helper to format price
     const formatPrice = (price: string | number) => {
@@ -92,6 +95,7 @@ const StoreGridBlock: React.FC<BlockProps> = ({ payload }) => {
                                         <Button
                                             className="w-full py-6 rounded-xl font-bold flex gap-2 items-center justify-center transition-all active:scale-95"
                                             disabled={product.stock <= 0}
+                                            onClick={() => addItem(product)}
                                         >
                                             <ShoppingCart className="w-4 h-4" />
                                             Añadir al Carrito

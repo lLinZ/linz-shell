@@ -13,14 +13,14 @@ class MenuItemSeeder extends Seeder
         MenuItem::updateOrCreate(['label' => 'Dashboard'], [
             'route' => 'dashboard',
             'order' => 10,
-            'roles' => ['admin', 'user'],
+            'roles' => ['admin', 'master', 'user'],
             'icon' => 'HomeIcon'
         ]);
 
         MenuItem::updateOrCreate(['label' => 'Chat'], [
             'route' => 'chat.index',
             'order' => 20,
-            'roles' => ['admin', 'user'],
+            'roles' => ['admin', 'master', 'user'],
             'module_slug' => 'chat',
             'icon' => 'ChatBubbleLeftRightIcon'
         ]);
@@ -29,7 +29,7 @@ class MenuItemSeeder extends Seeder
             'route' => 'shop.index', // Now points to the real Shop Catalog
             'url' => '/shop',
             'order' => 30,
-            'roles' => ['admin', 'user'],
+            'roles' => ['admin', 'master', 'user'],
             'module_slug' => 'shopping-cart',
             'icon' => 'ShoppingCartIcon'
         ]);
@@ -38,7 +38,7 @@ class MenuItemSeeder extends Seeder
         // Admin Only Links - Grouped under "Administration"
         $adminParent = MenuItem::updateOrCreate(['label' => 'Administration'], [
             'order' => 90,
-            'roles' => ['admin'],
+            'roles' => ['admin', 'master'],
             'icon' => 'Cog6ToothIcon'
         ]);
 
@@ -46,21 +46,28 @@ class MenuItemSeeder extends Seeder
             'route' => 'admin.modules.index',
             'parent_id' => $adminParent->id,
             'order' => 10,
-            'roles' => ['admin'],
+            'roles' => ['master'],
         ]);
 
-        MenuItem::updateOrCreate(['label' => 'Landing Page'], [
-            'route' => 'admin.landing-page.index',
+        MenuItem::updateOrCreate(['label' => 'Gestión de Páginas'], [
+            'route' => 'admin.pages.index',
             'parent_id' => $adminParent->id,
             'order' => 20,
-            'roles' => ['admin'],
+            'roles' => ['admin', 'master'],
+        ]);
+
+        MenuItem::updateOrCreate(['label' => 'Navigation'], [
+            'route' => 'admin.navigation.index',
+            'parent_id' => $adminParent->id,
+            'order' => 25,
+            'roles' => ['master'],
         ]);
 
         MenuItem::updateOrCreate(['label' => 'Products'], [
             'route' => 'admin.products.index',
             'parent_id' => $adminParent->id,
             'order' => 30,
-            'roles' => ['admin'],
+            'roles' => ['admin', 'master'],
             'module_slug' => 'shopping-cart'
         ]);
 
@@ -68,7 +75,7 @@ class MenuItemSeeder extends Seeder
             'route' => 'admin.inventory.index',
             'parent_id' => $adminParent->id,
             'order' => 35,
-            'roles' => ['admin'],
+            'roles' => ['admin', 'master'],
             'module_slug' => 'inventory'
         ]);
 
@@ -76,14 +83,14 @@ class MenuItemSeeder extends Seeder
             'route' => 'admin.menus.index',
             'parent_id' => $adminParent->id,
             'order' => 40,
-            'roles' => ['admin'],
+            'roles' => ['master'],
         ]);
 
         MenuItem::updateOrCreate(['label' => 'System Settings'], [
             'route' => 'admin.settings.index',
             'parent_id' => $adminParent->id,
             'order' => 50,
-            'roles' => ['admin'],
+            'roles' => ['master'],
         ]);
     }
 }

@@ -4,11 +4,16 @@ import './bootstrap';
 import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
+import { PresenceProvider } from './Components/Chat/PresenceContext';
+import { ChatSoundProvider } from './Components/Chat/ChatSoundContext';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) => {
+        const siteName = (window as any).siteName || appName;
+        return title ? `${title} | ${siteName}` : siteName;
+    },
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.tsx`,
@@ -17,15 +22,37 @@ createInertiaApp({
     setup({ el, App, props }) {
         const root = createRoot(el);
 
+        // Branding Initialization
+        const branding = props.initialPage.props.branding as any;
+        if (branding?.site_name) {
+            (window as any).siteName = branding.site_name;
+        }
+
+        if (branding?.site_favicon) {
+            let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
+            if (!link) {
+                link = document.createElement('link');
+                link.rel = 'icon';
+                document.getElementsByTagName('head')[0].appendChild(link);
+            }
+            link.href = branding.site_favicon;
+        }
+
         // Apply dark mode if user preference exists
-        const user = props.initialPage.props.auth?.user;
+        const user = props.initialPage.props.auth?.user as any;
         if (user?.dark_mode) {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
         }
 
-        root.render(<App {...props} />);
+        root.render(
+            <PresenceProvider user={user}>
+                <ChatSoundProvider>
+                    <App {...props} />
+                </ChatSoundProvider>
+            </PresenceProvider>
+        );
     },
     progress: {
         color: '#4B5563',

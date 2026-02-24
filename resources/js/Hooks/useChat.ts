@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useContext } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { User } from '@/types';
 import { useChatSound } from '@/Components/Chat/ChatSoundContext';
@@ -150,6 +150,16 @@ export const useChat = (conversationId: number, currentUserId?: number) => {
         }
     };
 
+    const archiveChat = async (archive: boolean = true) => {
+        if (!conversationId) return;
+        try {
+            await axios.post(`/chat/${conversationId}/archive`, { archive });
+        } catch (error) {
+            console.error("Failed to archive chat:", error);
+            throw error;
+        }
+    };
+
     return {
         messages,
         isTyping,
@@ -162,6 +172,7 @@ export const useChat = (conversationId: number, currentUserId?: number) => {
         loading,
         loadingMore,
         hasMore: !!nextCursor,
-        loadMore
+        loadMore,
+        archiveChat
     };
 };

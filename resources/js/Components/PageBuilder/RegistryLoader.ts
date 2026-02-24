@@ -5,6 +5,9 @@
 
 // Core Blocks
 import './Blocks/Core/HeroBlock';
+import './Blocks/Core/InteractiveHeroBlock';
+import './Blocks/Core/FeaturesBlock';
+import './Blocks/Core/FooterBlock';
 
 // Ecommerce Blocks
 import './Blocks/Ecommerce/StoreGridBlock';

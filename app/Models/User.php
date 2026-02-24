@@ -52,7 +52,7 @@ class User extends Authenticatable
     }
     public function conversations(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsToMany(Conversation::class);
+        return $this->belongsToMany(Conversation::class)->withPivot('is_archived');
     }
 
     public function messages(): \Illuminate\Database\Eloquent\Relations\HasMany
@@ -62,6 +62,16 @@ class User extends Authenticatable
 
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return in_array($this->role, ['admin', 'master']);
+    }
+
+    public function isMaster(): bool
+    {
+        return $this->role === 'master';
+    }
+
+    public function isClient(): bool
+    {
+        return $this->role === 'client';
     }
 }
