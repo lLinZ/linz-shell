@@ -58,4 +58,62 @@ class CartController extends Controller
 
         return back()->with('success', 'Product added to cart.');
     }
+
+    public function checkout(Request $request)
+    {
+        $request->validate([
+            'customer_name' => 'required|string|max:255',
+            'customer_email' => 'required|email|max:255',
+            'customer_phone' => 'required|string|max:20',
+        ]);
+
+        $cart = $this->getCart();
+        $cart->load('items.product');
+
+        if ($cart->items->isEmpty()) {
+            return back()->with('error', 'Your cart is empty.');
+        }
+
+        try {
+            \Illuminate\Support\Facades\DB::beginTransaction();
+
+            $total = $cart->items->sum(function ($item) {
+                return $item->quantity * $item->price;
+            });
+
+            $order = \App\Models\Order::create([
+                'user_id' => auth()->id(),
+                'session_id' => session()->getId(),
+                'customer_name' => $request->customer_name,
+                'customer_email' => $request->customer_email,
+                'customer_phone' => $request->customer_phone,
+                'status' => 'Nuevo',
+                'total' => $total,
+            ]);
+
+            foreach ($cart->items as $item) {
+                \App\Models\OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                ]);
+            }
+
+            // Clear the cart
+            $cart->items()->delete();
+            $cart->status = 'completed';
+            $cart->save();
+
+            \Illuminate\Support\Facades\DB::commit();
+
+            // Broadcast the Order Created event
+            event(new \App\Events\OrderCreated($order));
+
+            return Inertia::location(route('shop.index')); // redirect somewhere, maybe to a success page
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return back()->with('error', 'There was an error processing your order.');
+        }
+    }
 }

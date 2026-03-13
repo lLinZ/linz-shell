@@ -1,29 +1,44 @@
-import React from 'react';
+import { lazy, ComponentType } from 'react';
 
 export interface BlockProps {
     payload: any;
 }
 
-export type BlockComponent = React.ComponentType<BlockProps>;
+export type BlockComponent = ComponentType<BlockProps>;
+
+/**
+ * Dynamic registry mapping block types to their lazy-loaded components.
+ * This triggers code splitting, ensuring that block code is only downloaded
+ * when a block of that type is actually rendered on the page.
+ */
+const registry: Record<string, Record<string, any>> = {
+    Core: {
+        Hero: lazy(() => import('./Blocks/Core/HeroBlock')),
+        InteractiveHero: lazy(() => import('./Blocks/Core/InteractiveHeroBlock')),
+        Features: lazy(() => import('./Blocks/Core/FeaturesBlock')),
+        Footer: lazy(() => import('./Blocks/Core/FooterBlock')),
+        DynamicForm: lazy(() => import('./Blocks/Core/DynamicFormBlock')),
+        ReviewsCarousel: lazy(() => import('./Blocks/Core/ReviewsCarouselBlock')),
+    },
+    Ecommerce: {
+        ProductGrid: lazy(() => import('./Blocks/Ecommerce/StoreGridBlock')),
+    }
+};
 
 class BlockRegistry {
-    private registry: Map<string, Map<string, BlockComponent>> = new Map();
-
     /**
-     * Register a block component for a specific module and block type.
+     * Get a lazy-loaded block component by its module and type.
      */
-    register(moduleNamespace: string, blockType: string, component: BlockComponent) {
-        if (!this.registry.has(moduleNamespace)) {
-            this.registry.set(moduleNamespace, new Map());
-        }
-        this.registry.get(moduleNamespace)!.set(blockType, component);
+    get(moduleNamespace: string, blockType: string): BlockComponent | null {
+        return registry[moduleNamespace]?.[blockType] || null;
     }
 
     /**
-     * Get a block component by its module and type.
+     * Legacy register method kept for backward compatibility if needed,
+     * but dynamic imports defined above take precedence.
      */
-    get(moduleNamespace: string, blockType: string): BlockComponent | null {
-        return this.registry.get(moduleNamespace)?.get(blockType) || null;
+    register(moduleNamespace: string, blockType: string, component: BlockComponent) {
+        // No-op in dynamic mode or could be used for testing
     }
 }
 

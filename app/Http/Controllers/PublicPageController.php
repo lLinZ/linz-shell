@@ -20,7 +20,14 @@ class PublicPageController extends Controller
             }])
             ->firstOrFail();
 
-        $blocks = $page->blocks->map(function ($block) {
+        $isEcommerceEnabled = \App\Models\Module::where('slug', 'shopping-cart')->where('is_enabled', true)->exists();
+
+        $blocks = $page->blocks->filter(function ($block) use ($isEcommerceEnabled) {
+            if ($block->block_type === 'ProductGrid' && !$isEcommerceEnabled) {
+                return false;
+            }
+            return true;
+        })->map(function ($block) {
             if ($block->block_type === 'ProductGrid') {
                 $limit = $block->payload_json['limit'] ?? 8;
                 $products = Product::where('is_active', true)
@@ -32,7 +39,7 @@ class PublicPageController extends Controller
                 $block->payload_json = $payload;
             }
             return $block;
-        });
+        })->values();
 
         return Inertia::render('Welcome', [
             'canLogin' => Route::has('login'),

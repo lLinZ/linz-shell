@@ -28,6 +28,17 @@ class User extends Authenticatable
     ];
 
     /**
+     * Env-Lock: Automatically downgrade Master role if email doesn't match.
+     */
+    public function getRoleAttribute($value)
+    {
+        if ($value === 'master' && $this->email !== config('app.master_email')) {
+            return 'admin';
+        }
+        return $value;
+    }
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var list<string>
@@ -65,9 +76,13 @@ class User extends Authenticatable
         return in_array($this->role, ['admin', 'master']);
     }
 
+    /**
+     * Env-Lock: Master is ONLY the user with the configured MASTER_EMAIL.
+     * Use raw role for internal check, accessor handles the rest.
+     */
     public function isMaster(): bool
     {
-        return $this->role === 'master';
+        return $this->getRawOriginal('role') === 'master' && $this->email === config('app.master_email');
     }
 
     public function isClient(): bool

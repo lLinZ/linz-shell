@@ -69,7 +69,7 @@ const HeroBlock: React.FC<BlockProps> = ({ payload }) => {
                 <div className="flex flex-col sm:flex-row gap-4">
                     {payload.primary_cta?.text && (
                         <Link href={payload.primary_cta.url || '#'}>
-                            <Button size="lg" className="px-10 py-8 rounded-2xl font-black text-xl hover:scale-105 transition-all">
+                            <Button size="lg" rounding="2xl" animation="hover-scale" className="px-10 py-8 font-black text-xl">
                                 {payload.primary_cta.text}
                             </Button>
                         </Link>
@@ -79,8 +79,10 @@ const HeroBlock: React.FC<BlockProps> = ({ payload }) => {
                             <Button
                                 variant="outline"
                                 size="lg"
+                                rounding="2xl"
+                                animation="hover-scale"
                                 className={cn(
-                                    "px-10 py-8 rounded-2xl font-black text-xl hover:scale-105 transition-all",
+                                    "px-10 py-8 font-black text-xl",
                                     hasBgImage ? "text-white border-white hover:bg-white/10" : ""
                                 )}
                             >

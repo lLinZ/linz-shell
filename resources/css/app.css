@@ -3,35 +3,65 @@
 @tailwind utilities;
 
 :root {
-    /* Default variables to prevent white-on-white before JS loads */
-    --color-primary: #3b82f6;
-    --color-primary-dark: #2563eb;
-    --color-primary-light: #60a5fa;
-    --color-primary-lighter: #93c5fd;
-    --color-accent: #3b82f6;
-    --color-accent-hover: #2563eb;
-    --color-text-primary: #111827;
-    --color-text-secondary: #4b5563;
-    --color-text-muted: #9ca3af;
+    /* Core Palette - Linz Shell Green Strategy */
+    --color-primary: #10b981;
+    --color-primary-dark: #059669;
+    --color-primary-light: #34d399;
+    --color-primary-lighter: #6ee7b7;
+
+    --color-accent: #10b981;
+    --color-accent-hover: #059669;
+
+    /* Neutral Scaling - Light Mode (Premium Neutral Gray) */
+    --color-text-primary: #0a0a0a;
+    --color-text-secondary: #404040;
+    --color-text-muted: #737373;
     --color-text-on-primary: #ffffff;
-    --color-border: #e5e7eb;
-    --color-bg-primary: #f8f9fa;
+
+    --color-border: #e5e5e5;
+    --color-bg-primary: #f5f5f5;
     --color-bg-secondary: #ffffff;
-    --color-bg-tertiary: #f1f3f5;
-    --color-success: #059669;
-    --color-warning: #d97706;
-    --color-danger: #dc2626;
-    --color-info: #2563eb;
+    --color-bg-tertiary: #ededed;
+
+    /* Component Specific Variables */
+    --color-surface: #ffffff;
+    --color-surface-hover: #f5f5f5;
+    --color-surface-active: #e5e5e5;
+    --color-focus-ring: rgba(16, 185, 129, 0.4);
+
+    /* Status Colors */
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-danger: #ef4444;
+    --color-info: #3b82f6;
+
+    /* Effects */
+    --glass-background: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.3);
 }
 
 .dark {
-    --color-text-primary: #f9fafb;
-    --color-text-secondary: #d1d5db;
-    --color-text-muted: #9ca3af;
-    --color-bg-primary: #0f172a;
-    --color-bg-secondary: #1e293b;
-    --color-bg-tertiary: #334155;
-    --color-border: #1e293b;
+    /* Neutral Scaling - Dark Mode (Pure Onyx Strategy) */
+    --color-text-primary: #fafafa;
+    --color-text-secondary: #a3a3a3;
+    --color-text-muted: #525252;
+
+    --color-bg-primary: #050505;
+    --color-bg-secondary: #121212;
+    --color-bg-tertiary: #1a1a1a;
+
+    --color-border: #262626;
+
+    --color-surface: #121212;
+    --color-surface-hover: #1a1a1a;
+    --color-surface-active: #262626;
+
+    /* Status Colors Dark */
+    --color-danger: #f87171;
+
+    /* Effects Dark */
+    --glass-background: rgba(18, 18, 18, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.03);
 }
 
 @layer base {
@@ -57,6 +87,24 @@
 
     ::-webkit-scrollbar-thumb:hover {
         @apply bg-gray-400 dark:bg-gray-600;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        @apply bg-transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: var(--color-primary);
+        opacity: 0.2;
+        border-radius: 9999px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        opacity: 0.4;
     }
 }
 

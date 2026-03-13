@@ -49,30 +49,30 @@ export default function DeleteUserForm() {
     return (
         <section className="relative">
             <header className="mb-8 text-center sm:text-left">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-black uppercase tracking-widest mb-3 border border-red-500/10">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-black uppercase tracking-widest mb-3 border border-red-500/10 mx-auto sm:mx-0">
                     <ShieldX className="w-3 h-3" />
                     Zona de Peligro
                 </div>
-                <Typography variant="h2" className="text-3xl font-black tracking-tight leading-none bg-gradient-to-r from-red-600 to-red-400 bg-clip-text text-transparent">
+                <Typography variant="h2" className="text-2xl sm:text-3xl font-black tracking-tight leading-tight bg-gradient-to-r from-red-600 to-red-400 bg-clip-text text-transparent text-balance">
                     Eliminar Cuenta
                 </Typography>
-                <Typography variant="muted" className="mt-3 text-sm font-medium opacity-60">
+                <Typography variant="muted" className="mt-3 text-sm font-medium opacity-60 text-balance">
                     Una vez eliminada, toda tu información será borrada permanentemente. No habrá marcha atrás.
                 </Typography>
             </header>
 
-            <div className="p-6 rounded-3xl bg-red-500/5 border border-red-500/10 max-w-2xl">
-                <Typography className="text-sm font-bold text-red-600 dark:text-red-400 mb-6 flex items-center gap-2 italic">
-                    <AlertTriangle className="w-4 h-4" />
+            <div className="p-4 sm:p-6 rounded-3xl bg-red-500/5 border border-red-500/10 max-w-2xl">
+                <Typography className="text-sm font-bold text-red-600 dark:text-red-400 mb-6 flex items-center gap-2 italic text-balance">
+                    <AlertTriangle className="w-4 h-4 flex-shrink-0" />
                     Por favor, descarga toda tu información antes de proceder.
                 </Typography>
                 <Button
                     variant="destructive"
                     onClick={confirmUserDeletion}
-                    className="h-14 px-8 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black shadow-lg shadow-red-500/20 active:scale-95 transition-all flex items-center gap-2 border-none"
+                    className="w-full sm:w-auto h-auto sm:h-14 py-4 sm:py-0 px-6 sm:px-8 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black shadow-lg shadow-red-500/20 active:scale-95 transition-all flex flex-col sm:flex-row items-center justify-center gap-2 border-none whitespace-normal text-center sm:text-left"
                 >
-                    <Trash2 className="w-4 h-4" />
-                    DESACTIVAR MI CUENTA PARA SIEMPRE
+                    <Trash2 className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-xs sm:text-sm">DESACTIVAR MI CUENTA</span>
                 </Button>
             </div>
 
@@ -81,17 +81,17 @@ export default function DeleteUserForm() {
                     {/* Background decoration */}
                     <div className="absolute top-0 right-0 -mr-10 -mt-10 w-40 h-40 bg-red-500/10 blur-3xl rounded-full" />
 
-                    <form onSubmit={deleteUser} className="p-8 sm:p-10 relative z-10">
+                    <form onSubmit={deleteUser} className="p-6 sm:p-10 relative z-10">
                         <div className="flex justify-between items-start mb-6">
-                            <div className="p-3 bg-red-100 dark:bg-red-500/10 rounded-2xl text-red-600">
-                                <AlertTriangle className="w-8 h-8" />
+                            <div className="p-3 bg-red-100 dark:bg-red-500/10 rounded-2xl text-red-600 flex-shrink-0">
+                                <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8" />
                             </div>
                             <button
                                 type="button"
                                 onClick={closeModal}
-                                className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl transition-colors"
+                                className="p-2 hover:bg-[var(--color-bg-tertiary)] rounded-xl transition-colors"
                             >
-                                <X className="w-5 h-5 text-gray-400" />
+                                <X className="w-5 h-5 text-[var(--color-text-muted)]" />
                             </button>
                         </div>
 
@@ -120,7 +120,7 @@ export default function DeleteUserForm() {
                                     ref={passwordInput}
                                     value={data.password}
                                     onChange={(e) => setData('password', e.target.value)}
-                                    className="block w-full pl-14 pr-6 h-16 bg-red-50/20 dark:bg-white/5 border-red-500/20 rounded-2xl focus:ring-red-600/30 focus:border-red-600 text-lg font-medium transition-all shadow-inner"
+                                    className="block w-full pl-14 pr-6 h-16 bg-[var(--color-bg-primary)] border-red-500/20 rounded-2xl focus:ring-red-600/30 focus:border-red-600 text-lg font-medium transition-all shadow-inner"
                                     isFocused
                                     placeholder="Ingrese clave de seguridad..."
                                 />

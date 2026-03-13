@@ -1,7 +1,12 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ButtonCustom from '@/Components/ButtonCustom';
 import { PageProps } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, useForm, router } from '@inertiajs/react';
+import React, { useState } from 'react';
+import Modal from '@/Components/Modal';
+import InputLabel from '@/Components/InputLabel';
+import TextInput from '@/Components/TextInput';
+import InputError from '@/Components/InputError';
 
 interface CartItem {
     id: number;
@@ -9,7 +14,7 @@ interface CartItem {
     quantity: number;
     price: number;
     product: {
-        name: string;
+        title: string;
         description: string;
         image_url?: string;
     };
@@ -25,6 +30,24 @@ interface Cart {
 
 export default function Index({ auth, cart }: PageProps<{ cart: Cart }>) {
     const total = cart.items.reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0);
+    const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+
+    const { data, setData, post, processing, errors, reset } = useForm({
+        customer_name: auth.user?.name || '',
+        customer_email: auth.user?.email || '',
+        customer_phone: '',
+    });
+
+    const submitCheckout = (e: React.FormEvent) => {
+        e.preventDefault();
+        post(route('cart.checkout'), {
+            onSuccess: () => {
+                setIsCheckoutModalOpen(false);
+                reset();
+                // success message is handled by flash
+            }
+        });
+    };
 
     return (
         <AuthenticatedLayout
@@ -43,8 +66,8 @@ export default function Index({ auth, cart }: PageProps<{ cart: Cart }>) {
                             <div className="text-center">
                                 <p className="text-gray-500 dark:text-gray-400">Your cart is empty.</p>
                                 <Link
-                                    href="/"
-                                    className="mt-4 inline-block text-app-accent hover:text-app-accent-hover transition-colors font-medium"
+                                    href="/shop"
+                                    className="mt-4 inline-block text-[var(--color-primary)] hover:opacity-80 transition-opacity font-medium"
                                 >
                                     Continue Shopping
                                 </Link>
@@ -64,8 +87,8 @@ export default function Index({ auth, cart }: PageProps<{ cart: Cart }>) {
                                         {cart.items.map((item) => (
                                             <tr key={item.id}>
                                                 <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
-                                                    {item.product.name}
-                                                    <div className="text-xs text-gray-500 dark:text-gray-400">{item.product.description}</div>
+                                                    {item.product?.title || 'Producto Eliminado'}
+                                                    <div className="text-xs text-gray-500 dark:text-gray-400">{item.product?.description}</div>
                                                 </td>
                                                 <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">{item.quantity}</td>
                                                 <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">${Number(item.price).toFixed(2)}</td>
@@ -79,18 +102,87 @@ export default function Index({ auth, cart }: PageProps<{ cart: Cart }>) {
                                         Total: ${total.toFixed(2)}
                                     </div>
                                 </div>
-                                <div className="mt-4 flex justify-end">
-                                    <ButtonCustom
-                                        className="px-8"
+                                <div className="mt-6 flex justify-end gap-4">
+                                    <Link href="/shop" className="px-4 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                                        Volver a Tienda
+                                    </Link>
+                                    <button
+                                        className="px-8 py-2 bg-[var(--color-primary)] text-white font-bold rounded-lg hover:opacity-90 shadow-lg shadow-[var(--color-primary)]/30 transition-all"
+                                        onClick={() => setIsCheckoutModalOpen(true)}
                                     >
                                         Proceed to Checkout
-                                    </ButtonCustom>
+                                    </button>
                                 </div>
                             </>
                         )}
                     </div>
                 </div>
             </div>
+
+            <Modal show={isCheckoutModalOpen} onClose={() => setIsCheckoutModalOpen(false)}>
+                <form onSubmit={submitCheckout} className="p-6 space-y-6">
+                    <div>
+                        <h2 className="text-xl font-black mb-2 tracking-tight">Detalles de tu Orden</h2>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Por favor, ingresa tus datos para procesar la orden. Luego serás contactado.</p>
+                    </div>
+
+                    <div>
+                        <InputLabel htmlFor="customer_name" value="Nombre Completo" />
+                        <TextInput
+                            id="customer_name"
+                            className="mt-1 block w-full bg-[var(--color-bg-primary)] border-[var(--color-border)] text-[var(--color-text-primary)]"
+                            value={data.customer_name}
+                            onChange={(e: any) => setData('customer_name', e.target.value)}
+                            required
+                        />
+                        <InputError message={errors.customer_name} className="mt-2" />
+                    </div>
+
+                    <div>
+                        <InputLabel htmlFor="customer_email" value="Correo Electrónico" />
+                        <TextInput
+                            id="customer_email"
+                            type="email"
+                            className="mt-1 block w-full bg-[var(--color-bg-primary)] border-[var(--color-border)] text-[var(--color-text-primary)]"
+                            value={data.customer_email}
+                            onChange={(e: any) => setData('customer_email', e.target.value)}
+                            required
+                        />
+                        <InputError message={errors.customer_email} className="mt-2" />
+                    </div>
+
+                    <div>
+                        <InputLabel htmlFor="customer_phone" value="Teléfono (WhatsApp)" />
+                        <TextInput
+                            id="customer_phone"
+                            type="text"
+                            placeholder="+1234567890"
+                            className="mt-1 block w-full bg-[var(--color-bg-primary)] border-[var(--color-border)] text-[var(--color-text-primary)]"
+                            value={data.customer_phone}
+                            onChange={(e: any) => setData('customer_phone', e.target.value)}
+                            required
+                        />
+                        <InputError message={errors.customer_phone} className="mt-2" />
+                    </div>
+
+                    <div className="mt-6 flex justify-end gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setIsCheckoutModalOpen(false)}
+                            className="px-4 py-2 text-sm font-medium border border-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={processing}
+                            className={`px-6 py-2 bg-[var(--color-primary)] text-white font-bold rounded-lg hover:opacity-90 transition-opacity ${processing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                            Completar Orden
+                        </button>
+                    </div>
+                </form>
+            </Modal>
         </AuthenticatedLayout>
     );
 }

@@ -26,15 +26,20 @@ export default function UpdateProfileInformation({
     mustVerifyEmail: boolean;
     status?: string;
 }) {
-    const user = usePage().props.auth.user;
+    const { auth, settings } = usePage<any>().props;
+    const user = auth.user;
+    const systemDefaultColor = settings?.default_primary_color || '#3B82F6';
 
     const { data, setData, patch, errors, processing, recentlySuccessful } =
         useForm({
             name: user.name,
             email: user.email,
-            avatar_color: user.avatar_color || '#3B82F6',
+            avatar_color: user.avatar_color,
             dark_mode: user.dark_mode || false,
         });
+
+    const currentColor = data.avatar_color || systemDefaultColor;
+    const isCustomColor = data.avatar_color && !VALID_COLORS.find(c => c.value.toLowerCase() === data.avatar_color?.toLowerCase());
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -71,7 +76,7 @@ export default function UpdateProfileInformation({
                                 </div>
                                 <TextInput
                                     id="name"
-                                    className="block w-full pl-14 pr-6 h-16 bg-[var(--color-bg-tertiary)]/30 border-white/10 rounded-[1.25rem] focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] focus:bg-[var(--color-bg-secondary)] text-lg font-medium transition-all duration-500 shadow-inner"
+                                    className="block w-full pl-14 pr-6 h-16 bg-[var(--color-bg-primary)] border-[var(--color-border)] focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] focus:bg-[var(--color-bg-secondary)] text-lg font-medium transition-all duration-500 shadow-inner rounded-[1.25rem]"
                                     value={data.name}
                                     onChange={(e) => setData('name', e.target.value)}
                                     required
@@ -92,7 +97,7 @@ export default function UpdateProfileInformation({
                                 <TextInput
                                     id="email"
                                     type="email"
-                                    className="block w-full pl-14 pr-6 h-16 bg-[var(--color-bg-tertiary)]/30 border-white/10 rounded-[1.25rem] focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] focus:bg-[var(--color-bg-secondary)] text-lg font-medium transition-all duration-500 shadow-inner"
+                                    className="block w-full pl-14 pr-6 h-16 bg-[var(--color-bg-primary)] border-[var(--color-border)] focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] focus:bg-[var(--color-bg-secondary)] text-lg font-medium transition-all duration-500 shadow-inner rounded-[1.25rem]"
                                     value={data.email}
                                     onChange={(e) => setData('email', e.target.value)}
                                     required
@@ -106,10 +111,24 @@ export default function UpdateProfileInformation({
 
                     <div className="space-y-8">
                         {/* Avatar Color Picker */}
-                        <div className="space-y-4 p-6 rounded-3xl bg-[var(--color-bg-tertiary)]/20 border border-white/5">
-                            <div className="flex items-center gap-2 mb-2">
-                                <Palette className="w-4 h-4 text-[var(--color-primary)]" />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-[var(--color-text-muted)]">Paleta de Marca</span>
+                        <div className="space-y-4 p-4 sm:p-6 rounded-3xl bg-[var(--color-bg-tertiary)] border border-[var(--color-border)]">
+                            <div className="flex items-center justify-between gap-2 mb-2">
+                                <div className="flex items-center gap-2">
+                                    <Palette className="w-4 h-4 text-[var(--color-primary)]" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-[var(--color-text-muted)]">Paleta de Marca</span>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setData('avatar_color', null)}
+                                    className={cn(
+                                        "text-[9px] font-black uppercase tracking-tighter transition-all px-2 py-1 rounded-lg border",
+                                        data.avatar_color === null
+                                            ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)]"
+                                            : "text-[var(--color-primary)] border-[var(--color-primary)]/20 hover:bg-[var(--color-primary)]/5"
+                                    )}
+                                >
+                                    {data.avatar_color === null ? 'Siguiendo Sistema' : 'Restaurar Sistema'}
+                                </button>
                             </div>
                             <div className="flex flex-wrap gap-4">
                                 {VALID_COLORS.map((color) => (
@@ -119,14 +138,14 @@ export default function UpdateProfileInformation({
                                         onClick={() => setData('avatar_color', color.value)}
                                         className={cn(
                                             "relative h-12 w-12 rounded-2xl transition-all duration-300 group/color active:scale-95 shadow-lg",
-                                            data.avatar_color === color.value
+                                            data.avatar_color?.toLowerCase() === color.value.toLowerCase()
                                                 ? "scale-110 ring-4 ring-[var(--color-primary)]/30"
                                                 : "hover:scale-105 hover:rotate-6 grayscale-[0.5] hover:grayscale-0"
                                         )}
                                         style={{ backgroundColor: color.value }}
                                         title={color.label}
                                     >
-                                        {data.avatar_color === color.value && (
+                                        {data.avatar_color?.toLowerCase() === color.value.toLowerCase() && (
                                             <motion.div
                                                 layoutId="activeColor"
                                                 className="absolute inset-0 flex items-center justify-center text-white"
@@ -136,11 +155,37 @@ export default function UpdateProfileInformation({
                                         )}
                                     </button>
                                 ))}
+
+                                {/* Custom Color Picker */}
+                                <div className="relative h-12 w-12 group/custom">
+                                    <input
+                                        type="color"
+                                        value={currentColor}
+                                        onChange={(e) => setData('avatar_color', e.target.value)}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                    />
+                                    <div
+                                        className={cn(
+                                            "absolute inset-0 rounded-2xl transition-all flex items-center justify-center shadow-lg",
+                                            isCustomColor
+                                                ? "scale-110 ring-4 ring-[var(--color-primary)]/30 z-20"
+                                                : "hover:scale-105 hover:rotate-6 shadow-md border-2 border-dashed border-[var(--color-border)] group-hover/custom:border-[var(--color-primary)]/50"
+                                        )}
+                                        style={{ backgroundColor: currentColor }}
+                                    >
+                                        {isCustomColor ? (
+                                            <CheckCircle2 className="w-6 h-6 text-white drop-shadow-md" />
+                                        ) : (
+                                            <Sparkles className="w-4 h-4 text-white drop-shadow-md opacity-80 group-hover/custom:opacity-100 group-hover/custom:scale-110 transition-all" />
+                                        )}
+                                    </div>
+                                    <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[8px] font-black uppercase tracking-tighter opacity-0 group-hover/custom:opacity-100 transition-opacity whitespace-nowrap">Personalizado</span>
+                                </div>
                             </div>
                         </div>
 
                         {/* Theme Toggle */}
-                        <div className="flex items-center justify-between p-6 rounded-3xl bg-[var(--color-bg-tertiary)]/20 border border-white/5">
+                        <div className="flex items-center justify-between p-4 sm:p-6 rounded-3xl bg-[var(--color-bg-tertiary)] border border-[var(--color-border)]">
                             <div className="flex flex-col">
                                 <span className="text-[10px] font-black uppercase tracking-widest text-[var(--color-text-muted)] mb-1">Experiencia Visual</span>
                                 <div className="flex items-center gap-2">
@@ -198,11 +243,11 @@ export default function UpdateProfileInformation({
                 <div className="flex flex-wrap items-center gap-6 pt-4">
                     <Button
                         disabled={processing}
-                        className="relative h-16 px-10 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] hover:from-[var(--color-accent)] hover:to-[var(--color-primary)] text-white rounded-2xl text-lg font-black shadow-xl flex items-center justify-center gap-3 group overflow-hidden border-none"
+                        className="w-full sm:w-auto relative h-16 px-10 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-accent)] hover:from-[var(--color-accent)] hover:to-[var(--color-primary)] text-white rounded-2xl text-lg font-black shadow-xl flex items-center justify-center gap-3 group overflow-hidden border-none"
                     >
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]" />
-                        <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                        ACTUALIZAR PERFIL
+                        <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform flex-shrink-0" />
+                        <span className="text-sm sm:text-lg">ACTUALIZAR PERFIL</span>
                     </Button>
 
                     <Transition

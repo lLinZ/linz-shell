@@ -7,8 +7,17 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
+use App\Services\InventoryService;
+
 class InventoryController extends Controller
 {
+    protected InventoryService $inventoryService;
+
+    public function __construct(InventoryService $inventoryService)
+    {
+        $this->inventoryService = $inventoryService;
+    }
+
     public function index()
     {
         return Inertia::render('Admin/Inventory/Index', [
@@ -22,7 +31,17 @@ class InventoryController extends Controller
             'stock' => 'required|integer|min:0',
         ]);
 
-        $product->update(['stock' => $request->stock]); // Triggers BroadcastsState
+        try {
+            $this->inventoryService->setStock(
+                $product,
+                $request->stock,
+                auth()->id(),
+                'Manual Update',
+                'Ajuste manual desde el panel'
+            );
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         return back()->with('success', 'Stock updated.');
     }

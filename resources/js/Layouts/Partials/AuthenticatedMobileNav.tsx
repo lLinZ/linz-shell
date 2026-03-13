@@ -2,6 +2,8 @@ import { Link, router } from '@inertiajs/react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import * as OutlineIcons from '@heroicons/react/24/outline';
 import { User } from '@/types';
+import { Typography } from '@/Components/ui/Typography';
+import { SidebarLink } from './SidebarLink';
 
 interface MobileNavProps {
     user: User;
@@ -33,12 +35,12 @@ export const MobileNav = ({ user, menu, showingDropdown, setShowingDropdown }: M
                 onClick={() => setShowingDropdown(false)}
             >
                 <div
-                    className={`absolute right-0 top-0 bottom-0 w-72 bg-[var(--color-bg-secondary)] p-6 transform transition-transform duration-300 shadow-2xl ${showingDropdown ? 'translate-x-0' : 'translate-x-full'
+                    className={`absolute right-0 top-0 bottom-0 w-72 bg-[var(--color-bg-secondary)] p-6 transform transition-transform duration-300 shadow-2xl overflow-hidden flex flex-col ${showingDropdown ? 'translate-x-0' : 'translate-x-full'
                         }`}
                     onClick={e => e.stopPropagation()}
                 >
-                    <div className="flex justify-between items-center mb-8">
-                        <span className="text-xl font-bold text-[var(--color-text-primary)]">Menú</span>
+                    <div className="flex justify-between items-center mb-8 flex-shrink-0">
+                        <Typography variant="h3" className="text-xl font-bold text-[var(--color-text-primary)]">Menú</Typography>
                         <button
                             onClick={() => setShowingDropdown(false)}
                             className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
@@ -47,19 +49,13 @@ export const MobileNav = ({ user, menu, showingDropdown, setShowingDropdown }: M
                         </button>
                     </div>
 
-                    <div className="space-y-2 overflow-y-auto h-[calc(100%-120px)] pb-10 custom-scrollbar">
+                    <div className="space-y-2 overflow-y-auto flex-1 pb-24 custom-scrollbar">
                         {menu && menu.map((item: any) => (
-                            <Link
+                            <SidebarLink
                                 key={item.id}
-                                href={item.route ? route(item.route) : item.url || '#'}
-                                className={`block px-4 py-3 rounded-xl text-lg transition-all ${(item.route && route().current(item.route))
-                                    ? 'bg-[var(--color-primary)] text-white font-bold'
-                                    : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-tertiary)]'
-                                    }`}
+                                item={item}
                                 onClick={() => setShowingDropdown(false)}
-                            >
-                                {item.label}
-                            </Link>
+                            />
                         ))}
                     </div>
 
@@ -73,7 +69,7 @@ export const MobileNav = ({ user, menu, showingDropdown, setShowingDropdown }: M
                         </Link>
                         <button
                             onClick={() => router.post(route('logout'))}
-                            className="block w-full py-3 text-center rounded-xl bg-red-500/10 text-red-500 font-bold"
+                            className="block w-full py-3 text-center rounded-xl bg-[var(--color-danger)]/10 text-[var(--color-danger)] font-bold transition-colors"
                         >
                             Cerrar Sesión
                         </button>

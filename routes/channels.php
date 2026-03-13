@@ -17,3 +17,11 @@ Broadcast::channel('chat.{conversationId}', function ($user, $conversationId) {
 Broadcast::channel('global.presence', function ($user) {
     return ['id' => $user->id, 'name' => $user->name];
 });
+
+Broadcast::channel('admin.leads', function ($user) {
+    return $user->isAdmin();
+});
+
+Broadcast::channel('admin.orders', function ($user) {
+    return $user->isAdmin();
+});

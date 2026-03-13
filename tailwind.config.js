@@ -10,6 +10,13 @@ export default {
         './resources/views/**/*.blade.php',
         './resources/js/**/*.tsx',
     ],
+    safelist: [
+        // Status pills & dots used dynamically in Orders CRM
+        'bg-blue-500', 'bg-yellow-500', 'bg-purple-500', 'bg-emerald-500', 'bg-rose-500',
+        'bg-blue-500/15', 'bg-yellow-500/15', 'bg-purple-500/15', 'bg-emerald-500/15', 'bg-rose-500/15',
+        'border-blue-500/20', 'border-yellow-500/20', 'border-purple-500/20', 'border-emerald-500/20', 'border-rose-500/20',
+        'text-blue-400', 'text-yellow-400', 'text-purple-400', 'text-emerald-400', 'text-rose-400',
+    ],
 
     theme: {
         extend: {

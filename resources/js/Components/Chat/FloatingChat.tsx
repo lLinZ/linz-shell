@@ -5,6 +5,7 @@ import { MessageCircle, X, LogIn, ExternalLink } from 'lucide-react';
 import { Surface } from '@/Components/ui/Surface';
 import { Typography } from '@/Components/ui/Typography';
 import { Button } from '@/Components/ui/button';
+import { cn } from '@/lib/utils';
 import ChatWindow from './ChatWindow';
 import axios from 'axios';
 
@@ -13,16 +14,17 @@ import axios from 'axios';
  * Handles both Guest (Popover) and Authenticated (Compact Window) states.
  */
 export default function FloatingChat() {
-    const { auth } = usePage<any>().props;
+    const { auth, modules } = usePage<any>().props;
     const [isOpen, setIsOpen] = useState(false);
     const [conversation, setConversation] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [hasSentMeta, setHasSentMeta] = useState(false);
 
+    const isChatEnabled = modules?.find((m: any) => m.slug === 'chat')?.is_enabled === true;
     const user = auth?.user;
 
-    // Hide for any staff/admin roles
-    if (user && (user.role === 'admin' || user.role === 'master')) return null;
+    // Hide if module is disabled OR for any staff/admin roles
+    if (!isChatEnabled || (user && (user.role === 'admin' || user.role === 'master'))) return null;
 
     // Handle initial conversation fetch for authenticated users
     const handleToggle = async () => {
@@ -58,14 +60,16 @@ export default function FloatingChat() {
                             // Guest State: Popover
                             <Surface
                                 variant="primary"
-                                className="w-[320px] p-6 shadow-2xl rounded-3xl border border-[var(--color-border)]/50 backdrop-blur-xl bg-[var(--color-bg-secondary)]/90"
+                                rounding="3xl"
+                                shadow="2xl"
+                                className="w-[320px] p-6 border border-[var(--color-border)]/50 backdrop-blur-xl bg-[var(--color-bg-secondary)]/90"
                             >
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-start">
                                         <div className="bg-[var(--color-primary)]/10 p-2 rounded-xl">
                                             <MessageCircle className="w-6 h-6 text-[var(--color-primary)]" />
                                         </div>
-                                        <button onClick={() => setIsOpen(false)} className="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]">
+                                        <button onClick={() => setIsOpen(false)} className="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors">
                                             <X className="w-5 h-5" />
                                         </button>
                                     </div>
@@ -77,12 +81,12 @@ export default function FloatingChat() {
                                     </div>
                                     <div className="grid grid-cols-2 gap-3 mt-4">
                                         <Link href={route('login')} className="w-full">
-                                            <Button variant="outline" className="w-full h-11 rounded-xl text-sm">
+                                            <Button variant="outline" rounding="xl" className="w-full h-11 text-sm">
                                                 Entrar
                                             </Button>
                                         </Link>
                                         <Link href={route('register')} className="w-full">
-                                            <Button className="w-full h-11 rounded-xl text-sm shadow-lg shadow-[var(--color-primary)]/20">
+                                            <Button rounding="xl" className="w-full h-11 text-sm shadow-lg shadow-[var(--color-primary)]/20">
                                                 Registrarse
                                             </Button>
                                         </Link>
@@ -93,7 +97,9 @@ export default function FloatingChat() {
                             // Authenticated State: Compact Chat Window
                             <Surface
                                 variant="secondary"
-                                className="w-[380px] h-[520px] shadow-2xl rounded-3xl overflow-hidden border border-[var(--color-border)]/50 flex flex-col backdrop-blur-xl bg-[var(--color-bg-secondary)]/95"
+                                rounding="3xl"
+                                shadow="2xl"
+                                className="w-[380px] h-[520px] overflow-hidden border border-[var(--color-border)]/50 flex flex-col backdrop-blur-xl bg-[var(--color-bg-secondary)]/95"
                             >
                                 {loading ? (
                                     <div className="flex-1 flex flex-col items-center justify-center space-y-4">
@@ -135,11 +141,9 @@ export default function FloatingChat() {
 
                 {/* Notification Badge Placeholder */}
                 {!isOpen && (
-                    <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 border-2 border-white rounded-full animate-pulse" />
+                    <span className="absolute top-0 right-0 w-4 h-4 bg-[var(--color-danger)] border-2 border-[var(--color-bg-primary)] rounded-full animate-pulse" />
                 )}
             </motion.button>
         </div>
     );
 }
-
-const cn = (...classes: any[]) => classes.filter(Boolean).join(' ');

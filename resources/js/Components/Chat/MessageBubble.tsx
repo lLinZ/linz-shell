@@ -162,7 +162,7 @@ export default function MessageBubble({
                     {/* ghost base + red overrides — no destructive variant because that uses bg-red-500 */}
                     <Button
                         variant="ghost"
-                        className="w-full justify-start gap-3 rounded-none px-4 py-3 h-auto font-normal text-red-500 hover:bg-red-500/10 hover:text-red-500"
+                        className="w-full justify-start gap-3 rounded-none px-4 py-3 h-auto font-normal text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10 hover:text-[var(--color-danger)]"
                         onClick={() => { /* TODO: delete handler */ closeMenu(); }}
                     >
                         <Trash2 className="w-4 h-4 flex-shrink-0" />

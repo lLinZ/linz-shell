@@ -15,10 +15,12 @@ class EnsureIsMaster
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user() && $request->user()->role === 'master') {
+        $user = $request->user();
+
+        if ($user && $user->isMaster() && $user->email === config('app.master_email')) {
             return $next($request);
         }
 
-        abort(403, 'Unauthorized. This action requires Master privileges.');
+        abort(403, 'Acceso denegado: Credenciales de Master inválidas.');
     }
 }

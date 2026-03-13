@@ -13,14 +13,14 @@ class MenuItemSeeder extends Seeder
         MenuItem::updateOrCreate(['label' => 'Dashboard'], [
             'route' => 'dashboard',
             'order' => 10,
-            'roles' => ['admin', 'master', 'user'],
+            'roles' => ['admin', 'master', 'client'],
             'icon' => 'HomeIcon'
         ]);
 
         MenuItem::updateOrCreate(['label' => 'Chat'], [
             'route' => 'chat.index',
             'order' => 20,
-            'roles' => ['admin', 'master', 'user'],
+            'roles' => ['admin', 'master', 'client'],
             'module_slug' => 'chat',
             'icon' => 'ChatBubbleLeftRightIcon'
         ]);
@@ -29,7 +29,7 @@ class MenuItemSeeder extends Seeder
             'route' => 'shop.index', // Now points to the real Shop Catalog
             'url' => '/shop',
             'order' => 30,
-            'roles' => ['admin', 'master', 'user'],
+            'roles' => ['admin', 'master', 'client'],
             'module_slug' => 'shopping-cart',
             'icon' => 'ShoppingCartIcon'
         ]);

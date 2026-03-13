@@ -63,7 +63,7 @@ export default function CartDrawer() {
                             </Typography>
                         </Surface>
                     </div>
-                    <Button variant="ghost" size="none" onClick={() => toggleCart(false)} className="p-2">
+                    <Button variant="ghost" size="icon" rounding="full" onClick={() => toggleCart(false)}>
                         <X className="w-6 h-6" />
                     </Button>
                 </div>
@@ -80,7 +80,7 @@ export default function CartDrawer() {
                         </div>
                     ) : (
                         items.map((item: any) => (
-                            <Surface key={item.id} variant="secondary" border className="p-4 rounded-2xl flex gap-4 group">
+                            <Surface key={item.id} variant="secondary" border rounding="2xl" className="p-4 flex gap-4 group">
                                 <div className="w-20 h-20 rounded-xl overflow-hidden border border-[var(--color-border)] bg-[var(--color-bg-primary)] shrink-0">
                                     <img src={item.image_url || ''} alt={item.name} className="w-full h-full object-cover" />
                                 </div>
@@ -148,7 +148,7 @@ export default function CartDrawer() {
                             </div>
                         </div>
 
-                        <Button className="w-full py-8 rounded-2xl font-bold flex items-center justify-center gap-2 group">
+                        <Button rounding="2xl" animation="hover-lift" className="w-full py-8 font-bold flex items-center justify-center gap-2 group">
                             Proceder al Pago
                             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </Button>

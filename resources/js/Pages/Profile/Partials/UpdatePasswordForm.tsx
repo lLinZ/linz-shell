@@ -54,10 +54,10 @@ export default function UpdatePasswordForm() {
                     <ShieldCheck className="w-3 h-3" />
                     Seguridad
                 </div>
-                <Typography variant="h2" className="text-3xl font-black tracking-tight leading-none bg-gradient-to-r from-[var(--color-text-primary)] via-orange-500 to-[var(--color-primary)] bg-clip-text text-transparent">
+                <Typography variant="h2" className="text-2xl sm:text-3xl font-black tracking-tight leading-tight bg-gradient-to-r from-[var(--color-text-primary)] via-orange-500 to-[var(--color-primary)] bg-clip-text text-transparent text-balance">
                     Actualizar Contraseña
                 </Typography>
-                <Typography variant="muted" className="mt-3 text-sm font-medium opacity-60">
+                <Typography variant="muted" className="mt-3 text-sm font-medium opacity-60 text-balance">
                     Mantén tu cuenta protegida utilizando una combinación de caracteres fuerte y única.
                 </Typography>
             </header>
@@ -76,7 +76,7 @@ export default function UpdatePasswordForm() {
                             id="current_password"
                             ref={currentPasswordInput}
                             type="password"
-                            className="block w-full pl-14 pr-6 h-16 bg-[var(--color-bg-tertiary)]/30 border-white/10 rounded-[1.25rem] focus:ring-orange-500/30 focus:border-orange-500 focus:bg-[var(--color-bg-secondary)] text-lg font-medium transition-all duration-500 shadow-inner"
+                            className="block w-full pl-14 pr-6 h-16 bg-[var(--color-bg-primary)] border-[var(--color-border)] focus:ring-orange-500/30 focus:border-orange-500 focus:bg-[var(--color-bg-secondary)] text-lg font-medium transition-all duration-500 shadow-inner rounded-[1.25rem]"
                             value={data.current_password}
                             onChange={(e) => setData('current_password', e.target.value)}
                             autoComplete="current-password"
@@ -98,7 +98,7 @@ export default function UpdatePasswordForm() {
                                 id="password"
                                 ref={passwordInput}
                                 type="password"
-                                className="block w-full pl-14 pr-6 h-16 bg-[var(--color-bg-tertiary)]/30 border-white/10 rounded-[1.25rem] focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] focus:bg-[var(--color-bg-secondary)] text-lg font-medium transition-all duration-500 shadow-inner"
+                                className="block w-full pl-14 pr-6 h-16 bg-[var(--color-bg-primary)] border-[var(--color-border)] focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] focus:bg-[var(--color-bg-secondary)] text-lg font-medium transition-all duration-500 shadow-inner rounded-[1.25rem]"
                                 value={data.password}
                                 onChange={(e) => setData('password', e.target.value)}
                                 autoComplete="new-password"
@@ -118,7 +118,7 @@ export default function UpdatePasswordForm() {
                             <TextInput
                                 id="password_confirmation"
                                 type="password"
-                                className="block w-full pl-14 pr-6 h-16 bg-[var(--color-bg-tertiary)]/30 border-white/10 rounded-[1.25rem] focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] focus:bg-[var(--color-bg-secondary)] text-lg font-medium transition-all duration-500 shadow-inner"
+                                className="block w-full pl-14 pr-6 h-16 bg-[var(--color-bg-primary)] border-[var(--color-border)] focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] focus:bg-[var(--color-bg-secondary)] text-lg font-medium transition-all duration-500 shadow-inner rounded-[1.25rem]"
                                 value={data.password_confirmation}
                                 onChange={(e) => setData('password_confirmation', e.target.value)}
                                 autoComplete="new-password"
@@ -132,11 +132,11 @@ export default function UpdatePasswordForm() {
                 <div className="flex flex-wrap items-center gap-6 pt-6">
                     <Button
                         disabled={processing}
-                        className="relative h-16 px-10 bg-gradient-to-r from-orange-600 to-orange-400 hover:from-orange-500 hover:to-orange-700 text-white rounded-2xl text-lg font-black shadow-xl flex items-center justify-center gap-3 group overflow-hidden border-none"
+                        className="w-full sm:w-auto relative h-16 px-10 bg-gradient-to-r from-orange-600 to-orange-400 hover:from-orange-500 hover:to-orange-700 text-white rounded-2xl text-lg font-black shadow-xl flex items-center justify-center gap-3 group overflow-hidden border-none"
                     >
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]" />
-                        <KeyRound className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                        ACTUALIZAR LLAVES
+                        <KeyRound className="w-5 h-5 group-hover:rotate-12 transition-transform flex-shrink-0" />
+                        <span className="text-sm sm:text-lg text-center">ACTUALIZAR LLAVES</span>
                     </Button>
 
                     <Transition

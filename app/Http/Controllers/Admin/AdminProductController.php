@@ -23,16 +23,28 @@ class AdminProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
+            'category' => 'nullable|string|max:255',
+            'tags' => 'nullable|array',
             'is_active' => 'boolean',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'images.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        $data = $request->all();
+        $data = $request->except(['image', 'images']);
         $data['slug'] = \Illuminate\Support\Str::slug($request->name);
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('products', 'public');
             $data['image_url'] = '/storage/' . $path;
+        }
+
+        if ($request->hasFile('images')) {
+            $additionalImages = [];
+            foreach ($request->file('images') as $file) {
+                $path = $file->store('products', 'public');
+                $additionalImages[] = '/storage/' . $path;
+            }
+            $data['images'] = $additionalImages;
         }
 
         Product::create($data);
@@ -46,11 +58,14 @@ class AdminProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
+            'category' => 'nullable|string|max:255',
+            'tags' => 'nullable|array',
             'is_active' => 'boolean',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'images.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
-        $data = $request->all();
+        $data = $request->except(['image', 'images']);
         $data['slug'] = \Illuminate\Support\Str::slug($request->name);
 
         if ($request->hasFile('image')) {
@@ -61,6 +76,25 @@ class AdminProductController extends Controller
             
             $path = $request->file('image')->store('products', 'public');
             $data['image_url'] = '/storage/' . $path;
+        }
+
+        // Handle additional images replacement
+        if ($request->hasFile('images')) {
+            // Optional: delete old gallery images
+            if ($product->images) {
+                foreach ($product->images as $oldPath) {
+                    if (str_starts_with($oldPath, '/storage/')) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete(str_replace('/storage/', '', $oldPath));
+                    }
+                }
+            }
+
+            $additionalImages = [];
+            foreach ($request->file('images') as $file) {
+                $path = $file->store('products', 'public');
+                $additionalImages[] = '/storage/' . $path;
+            }
+            $data['images'] = $additionalImages;
         }
 
         $product->update($data);

@@ -10,6 +10,7 @@ import { useParticipantsManagement } from "@/Hooks/useParticipantsManagement"
 import { ParticipantItem } from "./ParticipantItem"
 import { Button } from "@/Components/ui/button"
 import { useChat } from "@/Hooks/useChat"
+import { toast } from "@/Stores/useToastStore"
 
 interface ParticipantsModalProps {
     isOpen: boolean
@@ -58,7 +59,7 @@ export const ParticipantsModal = ({
             if (onArchive) onArchive(!currentlyArchived);
             onClose();
         } catch (e) {
-            alert("Error al procesar la solicitud");
+            toast.error("Error intermitente", "No se pudo actualizar el estado del chat.");
         } finally {
             setIsArchiving(false);
         }

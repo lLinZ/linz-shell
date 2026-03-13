@@ -54,8 +54,8 @@ const InteractiveHeroBlock: React.FC<BlockProps> = ({ payload }) => {
         >
             {/* Background Layer with Integrated Parallax Support */}
             <motion.div
-                className="absolute inset-0 z-0"
-                style={{ y: isParallax ? y : 0 }}
+                className="absolute inset-0 z-0 overflow-hidden bg-black"
+                style={{ y: isParallax ? y : 0, scale: isParallax ? 1.05 : 1, willChange: 'transform' }}
             >
                 {isVideo ? (
                     <video
@@ -63,26 +63,38 @@ const InteractiveHeroBlock: React.FC<BlockProps> = ({ payload }) => {
                         muted
                         loop
                         playsInline
-                        className={cn(
-                            "w-full h-full object-cover",
-                            isParallax ? "scale-150" : "scale-105"
-                        )}
+                        className="w-full h-full object-cover opacity-60"
                     >
                         <source src={payload.video_url} type="video/mp4" />
                     </video>
                 ) : hasSlides ? (
                     slides.map((slide: any, idx: number) => (
-                        <div
+                        <motion.div
                             key={idx}
-                            className={cn(
-                                "absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ease-in-out",
-                                idx === currentSlide ? "opacity-100" : "opacity-0",
-                                isParallax ? "scale-150" : ""
-                            )}
-                            style={{ backgroundImage: `url(${slide.image})` }}
+                            initial={false}
+                            animate={{
+                                opacity: idx === currentSlide ? 1 : 0,
+                                scale: idx === currentSlide ? 1 : 1.1,
+                            }}
+                            transition={{ duration: 1.5, ease: [0.4, 0, 0.2, 1] }}
+                            className="absolute inset-0 bg-cover bg-center"
+                            style={{
+                                backgroundImage: `url(${slide.image})`,
+                                filter: 'contrast(1.1) brightness(0.8)'
+                            }}
                         />
                     ))
                 ) : null}
+
+                {/* Cinematic Post-Processing Layers */}
+                <div className="absolute inset-0 z-10">
+                    {/* Dynamic Vignette */}
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_50%,rgba(0,0,0,0.8)_100%)]" />
+                    {/* Vertical Gradient for Text Readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/60" />
+                    {/* Subtle Noise Texture */}
+                    <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')] brightness-100 contrast-150" />
+                </div>
             </motion.div>
 
             {/* Content Container */}
@@ -105,15 +117,21 @@ const InteractiveHeroBlock: React.FC<BlockProps> = ({ payload }) => {
                     <div className="flex flex-col sm:flex-row gap-5 justify-center pt-4">
                         {payload.primary_cta?.text && (
                             <Link href={payload.primary_cta.url || '#'}>
-                                <PrimaryButton size="lg" className="px-12 py-8 text-xl rounded-2xl group">
+                                <Button size="lg" rounding="2xl" animation="hover-scale" className="px-12 py-8 text-xl group">
                                     {payload.primary_cta.text}
                                     <Play className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform fill-current" />
-                                </PrimaryButton>
+                                </Button>
                             </Link>
                         )}
                         {payload.secondary_cta?.text && (
                             <Link href={payload.secondary_cta.url || '#'}>
-                                <Button variant="outline" size="lg" className="px-12 py-8 text-xl rounded-2xl border-white/30 hover:bg-white/10 backdrop-blur-sm text-white">
+                                <Button
+                                    variant="outline"
+                                    size="lg"
+                                    rounding="2xl"
+                                    animation="hover-scale"
+                                    className="px-12 py-8 text-xl border-white/30 hover:bg-white/10 backdrop-blur-sm text-white"
+                                >
                                     {payload.secondary_cta.text}
                                 </Button>
                             </Link>
@@ -125,18 +143,24 @@ const InteractiveHeroBlock: React.FC<BlockProps> = ({ payload }) => {
             {/* Carousel Navigation */}
             {hasSlides && !isVideo && slides.length > 1 && (
                 <>
-                    <button
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        rounding="full"
                         onClick={prevSlide}
-                        className="absolute left-6 top-1/2 -translate-y-1/2 z-30 p-3 rounded-full bg-black/20 hover:bg-black/40 border border-white/10 backdrop-blur-md transition-all"
+                        className="absolute left-6 top-1/2 -translate-y-1/2 z-30 bg-black/20 hover:bg-black/40 border border-white/10 backdrop-blur-md transition-all"
                     >
                         <ChevronLeft className="w-8 h-8 text-white" />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        rounding="full"
                         onClick={nextSlide}
-                        className="absolute right-6 top-1/2 -translate-y-1/2 z-30 p-3 rounded-full bg-black/20 hover:bg-black/40 border border-white/10 backdrop-blur-md transition-all"
+                        className="absolute right-6 top-1/2 -translate-y-1/2 z-30 bg-black/20 hover:bg-black/40 border border-white/10 backdrop-blur-md transition-all"
                     >
                         <ChevronRight className="w-8 h-8 text-white" />
-                    </button>
+                    </Button>
 
                     {/* Indicators */}
                     <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30 flex gap-3">
@@ -157,17 +181,7 @@ const InteractiveHeroBlock: React.FC<BlockProps> = ({ payload }) => {
     );
 };
 
-const PrimaryButton = ({ children, className, ...props }: any) => (
-    <Button
-        className={cn(
-            "bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white shadow-xl shadow-[var(--color-primary)]/20",
-            className
-        )}
-        {...props}
-    >
-        {children}
-    </Button>
-);
+// Removed PrimaryButton internal helper as it is redundant
 
 blockRegistry.register('Core', 'InteractiveHero', InteractiveHeroBlock);
 

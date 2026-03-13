@@ -5,6 +5,7 @@ import {
     TransitionChild,
 } from '@headlessui/react';
 import { PropsWithChildren } from 'react';
+import { cn } from '@/lib/utils';
 
 export default function Modal({
     children,
@@ -12,11 +13,15 @@ export default function Modal({
     maxWidth = '2xl',
     closeable = true,
     onClose = () => { },
+    className,
+    zIndex,
 }: PropsWithChildren<{
     show: boolean;
-    maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+    maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl' | 'full';
     closeable?: boolean;
     onClose: CallableFunction;
+    className?: string;
+    zIndex?: number;
 }>) {
     const close = () => {
         if (closeable) {
@@ -30,14 +35,20 @@ export default function Modal({
         lg: 'sm:max-w-lg',
         xl: 'sm:max-w-xl',
         '2xl': 'sm:max-w-2xl',
+        '3xl': 'sm:max-w-3xl',
+        '4xl': 'sm:max-w-4xl',
+        '5xl': 'sm:max-w-5xl',
+        '6xl': 'sm:max-w-6xl',
+        '7xl': 'sm:max-w-7xl',
+        full: 'sm:max-w-full',
     }[maxWidth];
 
     return (
         <Transition show={show} leave="duration-200">
             <Dialog
                 as="div"
-                id="modal"
-                className="fixed inset-0 z-50 flex transform items-center overflow-y-auto px-4 py-6 transition-all sm:px-0"
+                className={cn("fixed inset-0 flex transform items-center overflow-y-auto px-4 py-6 transition-all sm:px-0", className?.includes('z-') ? '' : 'z-50')}
+                style={zIndex ? { zIndex: zIndex } : {}}
                 onClose={close}
             >
                 <TransitionChild
@@ -60,7 +71,11 @@ export default function Modal({
                     leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 >
                     <DialogPanel
-                        className={`mb-6 transform overflow-y-auto max-h-[90vh] rounded-lg bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] shadow-xl transition-all sm:mx-auto sm:w-full border border-[var(--color-border)] ${maxWidthClass}`}
+                        className={cn(
+                            "mb-6 transform overflow-y-auto max-h-[90vh] rounded-lg bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] shadow-xl transition-all sm:mx-auto sm:w-full border border-[var(--color-border)]",
+                            maxWidthClass,
+                            className
+                        )}
                     >
                         {children}
                     </DialogPanel>

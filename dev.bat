@@ -1,0 +1,3 @@
+@echo off
+echo 🚀 Iniciando servicios de desarrollo para Linz Shell...
+composer dev

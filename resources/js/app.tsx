@@ -7,6 +7,10 @@ import { createRoot } from 'react-dom/client';
 import { PresenceProvider } from './Components/Chat/PresenceContext';
 import { ChatSoundProvider } from './Components/Chat/ChatSoundContext';
 
+import { Head } from '@inertiajs/react';
+
+import { Toaster } from './Components/ui/Toaster';
+
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
@@ -38,18 +42,13 @@ createInertiaApp({
             link.href = branding.site_favicon;
         }
 
-        // Apply dark mode if user preference exists
         const user = props.initialPage.props.auth?.user as any;
-        if (user?.dark_mode) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
 
         root.render(
             <PresenceProvider user={user}>
                 <ChatSoundProvider>
                     <App {...props} />
+                    <Toaster />
                 </ChatSoundProvider>
             </PresenceProvider>
         );

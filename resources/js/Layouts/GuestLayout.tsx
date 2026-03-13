@@ -4,12 +4,14 @@ import BrandingHeader from '@/Components/BrandingHeader';
 import FloatingChat from '@/Components/Chat/FloatingChat';
 import { motion } from 'framer-motion';
 import { Typography } from '@/Components/ui/Typography';
+import ThemeManager from '@/Components/ThemeManager';
 
 export default function Guest({ children }: PropsWithChildren) {
     const { branding } = usePage<any>().props;
 
     return (
         <div className="relative min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 overflow-x-hidden bg-[var(--color-bg-primary)] font-sans selection:bg-[var(--color-primary)] selection:text-white">
+            <ThemeManager />
             <BrandingHeader />
 
             {/* --- IMMERSIVE BACKGROUND LAYER --- */}
@@ -77,7 +79,7 @@ export default function Guest({ children }: PropsWithChildren) {
                     transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                     className="w-full relative"
                 >
-                    <div className="w-full bg-[var(--color-bg-secondary)]/80 sm:bg-[var(--color-bg-secondary)]/70 backdrop-blur-[20px] sm:backdrop-blur-[40px] border border-white/30 dark:border-white/10 shadow-2xl rounded-[2rem] sm:rounded-[3rem] md:rounded-[3.5rem] overflow-hidden">
+                    <div className="w-full bg-[var(--color-bg-secondary)] dark:bg-[var(--color-bg-secondary)]/70 backdrop-blur-[40px] border border-[var(--color-border)] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] dark:shadow-2xl rounded-[2rem] sm:rounded-[3rem] md:rounded-[3.5rem] overflow-hidden">
                         <div className="relative p-6 sm:p-10 md:p-14">
                             {children}
                         </div>
@@ -101,7 +103,7 @@ export default function Guest({ children }: PropsWithChildren) {
                 </motion.div>
             </div>
 
-            <FloatingChat />
+            {usePage<any>().props.modules?.find((m: any) => m.slug === 'chat')?.is_enabled === true && <FloatingChat />}
         </div>
     );
 }

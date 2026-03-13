@@ -10,7 +10,7 @@ export default forwardRef(function TextAreaCustom(
         if (isFocused) {
             input.current?.focus();
         }
-    }, []);
+    }, [isFocused]);
 
     return (
         <textarea

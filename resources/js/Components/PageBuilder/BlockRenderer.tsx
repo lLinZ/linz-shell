@@ -45,6 +45,7 @@ const BlockWrapper = ({ block, index }: { block: BlockData; index: number }) => 
         return null;
     }
 
+    // Block content
     return (
         <div
             ref={containerRef}
@@ -71,11 +72,17 @@ const BlockWrapper = ({ block, index }: { block: BlockData; index: number }) => 
                 />
             )}
 
-            {/* Block content */}
+            {/* Dynamic Block Component with Code Splitting support */}
             <div className="relative z-10 w-full">
-                <Component
-                    payload={payload}
-                />
+                <React.Suspense fallback={
+                    <div className="w-full py-32 flex items-center justify-center bg-[var(--color-bg-tertiary)]/10">
+                        <div className="w-16 h-16 border-4 border-[var(--color-primary)]/20 border-t-[var(--color-primary)] rounded-full animate-spin" />
+                    </div>
+                }>
+                    <Component
+                        payload={payload}
+                    />
+                </React.Suspense>
             </div>
         </div>
     );

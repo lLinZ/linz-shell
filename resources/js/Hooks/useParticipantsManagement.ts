@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { toast } from '@/Stores/useToastStore';
 
 export function useParticipantsManagement(conversationId: number, refreshUsers: () => void) {
     const [searchUserQuery, setSearchUserQuery] = useState('');
@@ -31,7 +32,7 @@ export function useParticipantsManagement(conversationId: number, refreshUsers: 
             setSearchResults([]);
         } catch (error) {
             console.error(error);
-            alert("Error al agregar usuario");
+            toast.error('Error', 'No se pudo agregar al usuario.');
         }
     };
 
@@ -42,7 +43,7 @@ export function useParticipantsManagement(conversationId: number, refreshUsers: 
             refreshUsers();
         } catch (error) {
             console.error(error);
-            alert("Error al eliminar usuario");
+            toast.error('Error', 'No se pudo eliminar al usuario.');
         }
     };
 

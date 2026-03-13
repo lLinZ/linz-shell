@@ -18,11 +18,16 @@ class Product extends Model
         'price',
         'stock',
         'image_url',
+        'images',
+        'category',
+        'tags',
         'is_active',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
         'price' => 'decimal:2',
+        'images' => 'array',
+        'tags' => 'array',
     ];
 }

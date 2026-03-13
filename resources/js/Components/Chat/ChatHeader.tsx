@@ -7,6 +7,7 @@ import { Input } from "@/Components/ui/input"
 import { Button } from "@/Components/ui/button"
 import { cn } from "@/lib/utils"
 import axios from "axios"
+import { toast } from "@/Stores/useToastStore"
 
 interface ChatHeaderProps {
     conversation: any
@@ -39,7 +40,7 @@ export const ChatHeader = ({ conversation, currentUser, onUpdate, onShowParticip
             setIsEditingName(false);
         } catch (error) {
             console.error("Failed to update name:", error);
-            alert("Error al actualizar el nombre");
+            toast.error("Error al actualizar", "No se pudo cambiar el nombre del chat.");
         } finally {
             setIsSavingName(false);
         }

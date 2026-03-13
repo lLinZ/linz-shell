@@ -20,6 +20,8 @@ class SystemSettingSeeder extends Seeder
         // Colors
         SystemSetting::set('primary_color', '#3B82F6', 'colors', 'color');
         SystemSetting::set('accent_color', '#F59E0B', 'colors', 'color');
+        SystemSetting::set('default_primary_color', '#3B82F6', 'colors', 'color');
+        SystemSetting::set('default_dark_mode', 'false', 'colors', 'boolean');
         
         // Social / Contact
         SystemSetting::set('contact_email', 'admin@example.com', 'contact', 'text');
